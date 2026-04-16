@@ -1,0 +1,33 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_USER=trellix
+      - DB_PASSWORD=trellix
+      - DB_NAME=trellix
+    depends_on:
+      - mariadb
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  mariadb:
+    image: mariadb:10.5
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=trellix
+      - MYSQL_USER=trellix
+      - MYSQL_PASSWORD=trellix
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+volumes:
+  mariadb_data:
