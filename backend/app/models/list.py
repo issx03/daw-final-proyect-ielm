@@ -4,6 +4,7 @@ List Model
 
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 
 from app.db.base import Base
 
@@ -17,3 +18,6 @@ class List(Base):
     position = Column(Integer, default=0)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+    board = relationship("Board", back_populates="lists")
+    cards = relationship("Card", back_populates="list", cascade="all, delete-orphan")

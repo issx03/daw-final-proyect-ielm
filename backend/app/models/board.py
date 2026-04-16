@@ -17,3 +17,6 @@ class Board(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+    owner = relationship("User", back_populates="boards")
+    lists = relationship("List", back_populates="board", cascade="all, delete-orphan")

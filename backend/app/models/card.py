@@ -4,6 +4,7 @@ Card Model
 
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 
 from app.db.base import Base
 
@@ -18,3 +19,5 @@ class Card(Base):
     position = Column(Integer, default=0)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+    list = relationship("List", back_populates="cards")

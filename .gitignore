@@ -67,3 +67,6 @@ data/
 
 # Jupyter notebooks
 .ipynb_checkpoints/
+
+# Databases
+*.db
