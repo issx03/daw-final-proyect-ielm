@@ -65,17 +65,42 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    access_token = create_access_token(data={"user_id": user.id})
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Inactive user"
+        )
+    
+    access_token = create_access_token(data={"user_id": user.id, "role": user.role})
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.get("/me", response_model=UserResponse)
-def get_me(user_id: int = Depends(get_current_user_id), db: Session = Depends(get_db)):
-    """Get current user."""
+def get_current_active_user(
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+) -> User:
+    """Get current active user."""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if not user.is_active:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return user
+
+
+def get_current_active_admin(
+    current_user: User = Depends(get_current_active_user)
+) -> User:
+    """Get current active admin."""
+    if current_user.role != "admin":
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The user doesn't have enough privileges"
         )
+    return current_user
+
+
+@router.get("/me", response_model=UserResponse)
+def get_me(user: User = Depends(get_current_active_user)):
+    """Get current user."""
     return user

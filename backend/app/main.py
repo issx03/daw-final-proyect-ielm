@@ -25,9 +25,10 @@ def create_app() -> FastAPI:
     )
 
     # Include routers
-    from app.api.v1.endpoints import auth, boards, lists, cards
+    from app.api.v1.endpoints import auth, users, boards, lists, cards
     
     app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
+    app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
     app.include_router(boards.router, prefix="/api/v1/boards", tags=["boards"])
     app.include_router(lists.router, prefix="/api/v1/lists", tags=["lists"])
     app.include_router(cards.router, prefix="/api/v1/cards", tags=["cards"])
