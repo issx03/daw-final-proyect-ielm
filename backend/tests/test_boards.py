@@ -1,6 +1,5 @@
 """
 Integration tests for Boards CRUD
-#SCRUM-62
 """
 
 from fastapi.testclient import TestClient
