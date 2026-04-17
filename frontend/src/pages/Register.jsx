@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from '../api/axios';
 
 const Register = () => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,13 +24,14 @@ const Register = () => {
 
     try {
       await axios.post('/auth/register', {
+        username,
         email,
         password,
       });
 
       // Login automatically after registration
       const formData = new URLSearchParams();
-      formData.append('username', email);
+      formData.append('username', username);
       formData.append('password', password);
 
       const loginResponse = await axios.post('/auth/login', formData, {
@@ -42,7 +44,8 @@ const Register = () => {
       navigate('/');
     } catch (err) {
       console.error('Registration error:', err);
-      setError(err.response?.data?.detail || 'Error al registrarse. Intentá con otro email.');
+      const detail = err.response?.data?.detail;
+      setError(typeof detail === 'string' ? detail : 'Error al registrarse. Asegurate de completar todos los campos.');
     } finally {
       setLoading(false);
     }
@@ -56,12 +59,24 @@ const Register = () => {
           <p className="text-slate-500">Unite a la comunidad Trellix</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm leading-relaxed">
               {error}
             </div>
           )}
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700 block ml-1">Nombre de usuario</label>
+            <input
+              type="text"
+              required
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-slate-400 focus:ring-0 transition-all outline-none bg-slate-50/50"
+              placeholder="tu_usuario"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700 block ml-1">Email</label>

@@ -7,9 +7,7 @@ const api = axios.create({
   },
 });
 
-// For vertical slice, we'll manually set a test token if needed, 
-// or just handle auth headers in a future step.
-// For now, let's assume we might need to intercept requests.
+// Request interceptor for API calls
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {

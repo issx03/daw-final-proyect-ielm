@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from '../api/axios';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,7 +16,7 @@ const Login = () => {
 
     try {
       const formData = new URLSearchParams();
-      formData.append('username', email);
+      formData.append('username', username);
       formData.append('password', password);
 
       const response = await axios.post('/auth/login', formData, {
@@ -29,7 +29,8 @@ const Login = () => {
       navigate('/');
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.response?.data?.detail || 'Error al iniciar sesión. Verificá tus credenciales.');
+      const detail = err.response?.data?.detail;
+      setError(typeof detail === 'string' ? detail : 'Error al iniciar sesión. Verificá tus credenciales.');
     } finally {
       setLoading(false);
     }
@@ -51,14 +52,14 @@ const Login = () => {
           )}
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 block ml-1">Email</label>
+            <label className="text-sm font-medium text-slate-700 block ml-1">Usuario o Email</label>
             <input
-              type="email"
+              type="text"
               required
               className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-slate-400 focus:ring-0 transition-all outline-none bg-slate-50/50"
-              placeholder="tu@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="tu_usuario o tu@email.com"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
           </div>
 
