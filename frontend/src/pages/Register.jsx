@@ -16,7 +16,7 @@ const Register = () => {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden.');
+      setError('Passwords do not match.');
       return;
     }
 
@@ -45,7 +45,7 @@ const Register = () => {
     } catch (err) {
       console.error('Registration error:', err);
       const detail = err.response?.data?.detail;
-      setError(typeof detail === 'string' ? detail : 'Error al registrarse. Asegurate de completar todos los campos.');
+      setError(typeof detail === 'string' ? detail : 'Registration error. Make sure to fill all fields.');
     } finally {
       setLoading(false);
     }
@@ -55,8 +55,8 @@ const Register = () => {
     <div className="min-h-[80vh] flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-editorial p-8">
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-serif text-slate-800 mb-2">Creá tu cuenta</h1>
-          <p className="text-slate-500">Unite a la comunidad Trellix</p>
+          <h1 className="text-3xl font-serif text-slate-800 mb-2">Create your account</h1>
+          <p className="text-slate-500">Join the Trellix community</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -67,12 +67,12 @@ const Register = () => {
           )}
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 block ml-1">Nombre de usuario</label>
+            <label className="text-sm font-medium text-slate-700 block ml-1">Username</label>
             <input
               type="text"
               required
               className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-slate-400 focus:ring-0 transition-all outline-none bg-slate-50/50"
-              placeholder="tu_usuario"
+              placeholder="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
@@ -84,14 +84,14 @@ const Register = () => {
               type="email"
               required
               className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-slate-400 focus:ring-0 transition-all outline-none bg-slate-50/50"
-              placeholder="tu@email.com"
+              placeholder="you@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 block ml-1">Contraseña</label>
+            <label className="text-sm font-medium text-slate-700 block ml-1">Password</label>
             <input
               type="password"
               required
@@ -103,7 +103,7 @@ const Register = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 block ml-1">Confirmar contraseña</label>
+            <label className="text-sm font-medium text-slate-700 block ml-1">Confirm password</label>
             <input
               type="password"
               required
@@ -119,14 +119,14 @@ const Register = () => {
             disabled={loading}
             className="w-full bg-slate-900 text-white py-4 rounded-xl font-medium shadow-soft hover:bg-slate-800 transition-all disabled:opacity-50 mt-4"
           >
-            {loading ? 'Creando cuenta...' : 'Empezar ahora'}
+            {loading ? 'Creating account...' : 'Start now'}
           </button>
         </form>
 
         <p className="mt-8 text-center text-slate-500 text-sm">
-          ¿Ya tenés cuenta?{' '}
+          Already have an account?{' '}
           <Link to="/login" className="text-slate-900 font-semibold hover:underline">
-            Iniciá sesión
+            Login
           </Link>
         </p>
       </div>

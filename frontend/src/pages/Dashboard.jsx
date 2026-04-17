@@ -47,7 +47,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="pt-32 px-6 text-center text-slate-500 animate-pulse font-serif text-xl">
-        Cargando tus proyectos...
+        Loading your projects...
       </div>
     );
   }
@@ -57,36 +57,36 @@ const Dashboard = () => {
       <header className="flex justify-between items-end mb-12">
         <div>
           <div className="flex items-center gap-4 mb-2">
-            <h1 className="text-4xl font-serif text-slate-900 font-medium">Mis Tableros</h1>
+            <h1 className="text-4xl font-serif text-slate-900 font-medium">My Boards</h1>
             <button 
               onClick={handleLogout}
               className="p-2 text-slate-400 hover:text-red-500 transition-colors"
-              title="Cerrar sesión"
+              title="Logout"
             >
               <LogOut size={20} />
             </button>
           </div>
-          <p className="text-slate-500">Gestioná tus proyectos con el estilo que merecen.</p>
+          <p className="text-slate-500">Manage your projects with the style they deserve.</p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
           className="bg-slate-900 text-white px-6 py-3 rounded-xl shadow-soft hover:bg-slate-800 transition-all flex items-center gap-2 font-medium"
         >
           <Plus size={20} />
-          Nuevo Tablero
+          New Board
         </button>
       </header>
 
       {boards.length === 0 ? (
         <div className="py-24 bg-white border border-slate-100 rounded-[2rem] flex flex-col items-center justify-center text-slate-400 shadow-editorial">
           <BoardIcon size={64} className="mb-6 opacity-20" />
-          <p className="text-xl font-serif text-slate-800 mb-2">Parece que no tenés tableros todavía</p>
-          <p className="text-sm mb-8">¡Empezá creando uno nuevo arriba!</p>
+          <p className="text-xl font-serif text-slate-800 mb-2">It seems you don't have any boards yet</p>
+          <p className="text-sm mb-8">Start by creating a new one above!</p>
           <button 
             onClick={() => setIsModalOpen(true)}
             className="text-slate-900 font-semibold hover:underline"
           >
-            Crear mi primer tablero
+            Create my first board
           </button>
         </div>
       ) : (
@@ -114,7 +114,7 @@ const Dashboard = () => {
                 {board.title}
               </h3>
               <p className="text-sm text-slate-400 line-clamp-2 leading-relaxed">
-                {board.description || 'Sin descripción detallada.'}
+                {board.description || 'No detailed description.'}
               </p>
             </Link>
           ))}
