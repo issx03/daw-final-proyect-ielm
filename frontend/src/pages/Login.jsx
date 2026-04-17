@@ -30,7 +30,7 @@ const Login = () => {
     } catch (err) {
       console.error('Login error:', err);
       const detail = err.response?.data?.detail;
-      setError(typeof detail === 'string' ? detail : 'Error al iniciar sesión. Verificá tus credenciales.');
+      setError(typeof detail === 'string' ? detail : 'Login error. Please verify your credentials.');
     } finally {
       setLoading(false);
     }
@@ -39,9 +39,9 @@ const Login = () => {
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-editorial p-8">
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-serif text-slate-800 mb-2">Bienvenido a Trellix</h1>
-          <p className="text-slate-500">Ingresá tus credenciales para continuar</p>
+        <div className="mb-8">
+          <h1 className="text-3xl font-serif text-slate-900 mb-2">Welcome to Trellix</h1>
+          <p className="text-slate-500">Enter your credentials to continue</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -52,12 +52,12 @@ const Login = () => {
           )}
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 block ml-1">Usuario o Email</label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Username or Email</label>
             <input
               type="text"
               required
               className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-slate-400 focus:ring-0 transition-all outline-none bg-slate-50/50"
-              placeholder="tu_usuario o tu@email.com"
+              placeholder="username or email"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
@@ -65,7 +65,7 @@ const Login = () => {
 
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <label className="text-sm font-medium text-slate-700 block ml-1">Contraseña</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
             </div>
             <input
               type="password"
@@ -80,16 +80,16 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-slate-900 text-white py-4 rounded-xl font-medium shadow-soft hover:bg-slate-800 transition-all disabled:opacity-50"
+            className="w-full bg-slate-900 text-white py-4 rounded-xl font-medium shadow-soft hover:bg-slate-800 transition-all mb-6 disabled:opacity-50"
           >
-            {loading ? 'Iniciando sesión...' : 'Entrar'}
+            {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
 
-        <p className="mt-8 text-center text-slate-500 text-sm">
-          ¿No tenés cuenta?{' '}
+        <p className="text-center text-slate-500 text-sm">
+          Don't have an account?{' '}
           <Link to="/register" className="text-slate-900 font-semibold hover:underline">
-            Registrate gratis
+            Register for free
           </Link>
         </p>
       </div>

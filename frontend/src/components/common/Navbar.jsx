@@ -27,14 +27,14 @@ const Navbar = () => {
           <div className="flex items-center gap-6">
             <Link to="/profile" className="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">
               <User size={18} />
-              <span className="hidden sm:inline font-serif">Mi Espacio</span>
+              <span className="hidden sm:inline font-serif">My Space</span>
             </Link>
             <button 
               onClick={handleLogout}
               className="flex items-center gap-2 text-sm font-medium text-red-400 hover:text-red-600 transition-colors"
             >
               <LogOut size={18} />
-              <span className="hidden sm:inline font-serif">Salir</span>
+              <span className="hidden sm:inline font-serif">Logout</span>
             </button>
           </div>
         )}
@@ -44,7 +44,7 @@ const Navbar = () => {
             to="/login"
             className="text-sm font-semibold text-slate-900 hover:underline font-serif"
           >
-            Iniciar Sesión
+            Login
           </Link>
         )}
       </div>

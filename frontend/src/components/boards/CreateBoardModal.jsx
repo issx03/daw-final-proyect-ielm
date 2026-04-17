@@ -16,6 +16,7 @@ const CreateBoardModal = ({ isOpen, onClose, onBoardCreated }) => {
   const [description, setDescription] = useState('');
   const [selectedColor, setSelectedColor] = useState(COLORS[0].value);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   if (!isOpen) return null;
 
@@ -24,6 +25,7 @@ const CreateBoardModal = ({ isOpen, onClose, onBoardCreated }) => {
     if (!title.trim()) return;
 
     setLoading(true);
+    setError('');
     try {
       const newBoard = await boardService.create({
         title,
@@ -34,9 +36,10 @@ const CreateBoardModal = ({ isOpen, onClose, onBoardCreated }) => {
       setTitle('');
       setDescription('');
       onClose();
-    } catch (error) {
-      console.error('Error creating board:', error);
-      alert('Error al crear el tablero. Intentá de nuevo.');
+    } catch (err) {
+      console.error('Error creating board:', err);
+      const detail = err.response?.data?.detail;
+      setError(typeof detail === 'string' ? detail : 'Error creating board. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -53,7 +56,7 @@ const CreateBoardModal = ({ isOpen, onClose, onBoardCreated }) => {
       {/* Modal */}
       <div className="relative bg-white w-full max-w-md rounded-[2rem] shadow-editorial p-10 animate-in fade-in zoom-in duration-300">
         <div className="flex justify-between items-center mb-10">
-          <h2 className="text-3xl font-serif text-slate-800">Nuevo Tablero</h2>
+          <h2 className="text-2xl font-serif text-slate-800">New Board</h2>
           <button 
             onClick={onClose}
             className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
@@ -63,32 +66,33 @@ const CreateBoardModal = ({ isOpen, onClose, onBoardCreated }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
+          {error && <p className="text-red-500 text-sm">{error}</p>}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 block ml-1">Título</label>
+            <label className="text-sm font-medium text-slate-700 block ml-1">Title</label>
             <input 
               type="text"
               required
               autoFocus
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Ej: Proyecto Rediseño"
+              placeholder="e.g. Redesign Project"
               className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-4 focus:outline-none focus:border-slate-300 transition-all text-slate-800"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 block ml-1">Descripción</label>
+            <label className="text-sm font-medium text-slate-700 block ml-1">Description</label>
             <textarea 
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="¿De qué trata este espacio?"
+              placeholder="What is this space about?"
               rows={3}
               className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-4 focus:outline-none focus:border-slate-300 transition-all resize-none text-slate-800"
             />
           </div>
 
           <div className="space-y-4">
-            <label className="text-sm font-medium text-slate-700 block ml-1">Color de Identidad</label>
+            <label className="text-sm font-medium text-slate-700 block ml-1">Identity Color</label>
             <div className="flex flex-wrap gap-4">
               {COLORS.map((color) => (
                 <button
@@ -110,16 +114,16 @@ const CreateBoardModal = ({ isOpen, onClose, onBoardCreated }) => {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-6 py-4 rounded-xl border border-slate-100 text-slate-500 hover:bg-slate-50 transition-colors font-medium"
+              className="px-6 py-3 text-slate-500 font-medium hover:text-slate-700 transition-colors"
             >
-              Cancelar
+              Cancel
             </button>
             <button
               type="submit"
               disabled={loading || !title.trim()}
-              className="flex-1 bg-slate-900 text-white rounded-xl shadow-soft hover:bg-slate-800 transition-all font-medium disabled:opacity-50"
+              className="bg-slate-900 text-white px-8 py-3 rounded-xl font-medium shadow-soft hover:bg-slate-800 transition-all disabled:opacity-50"
             >
-              {loading ? 'Creando...' : 'Crear Tablero'}
+              {loading ? 'Creating...' : 'Create Board'}
             </button>
           </div>
         </form>
