@@ -24,7 +24,7 @@ class BoardUpdate(BaseModel):
 
 class BoardResponse(BoardBase):
     id: int
-    owner_id: int
+    user_id: int
     created_at: datetime
     updated_at: datetime
 
