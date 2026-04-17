@@ -13,7 +13,7 @@ from app.core.security import (
     create_access_token,
     get_current_user_id,
 )
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import UserCreate, UserResponse, UserUpdate
 from app.schemas.token import Token
 from app.models.user import User
 
@@ -104,3 +104,47 @@ def get_current_active_admin(
 def get_me(user: User = Depends(get_current_active_user)):
     """Get current user."""
     return user
+
+
+@router.patch("/me", response_model=UserResponse)
+def update_me(
+    user_update: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Update current user profile."""
+    # Check uniqueness if email is changed
+    if user_update.email and user_update.email != current_user.email:
+        existing = db.query(User).filter(User.email == user_update.email).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Email already registered")
+            
+    # Check uniqueness if username is changed
+    if user_update.username and user_update.username != current_user.username:
+        existing = db.query(User).filter(User.username == user_update.username).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Username already taken")
+            
+    # Apply updates
+    update_data = user_update.model_dump(exclude_unset=True)
+    if "password" in update_data:
+        password = update_data.pop("password")
+        current_user.password_hash = get_password_hash(password)
+        
+    for key, value in update_data.items():
+        setattr(current_user, key, value)
+        
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+def delete_me(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Delete current user account."""
+    db.delete(current_user)
+    db.commit()
+    return None
