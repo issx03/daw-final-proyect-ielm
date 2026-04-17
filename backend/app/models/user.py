@@ -21,4 +21,4 @@ class User(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
-    boards = relationship("Board", back_populates="owner")
+    boards = relationship("Board", back_populates="owner", cascade="all, delete-orphan")
