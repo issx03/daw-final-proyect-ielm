@@ -70,4 +70,5 @@ def test_blocked_user_cannot_login(client, db_session):
     # Attempt login
     response = client.post("/api/v1/auth/login", data={"username": "blocked", "password": "p"})
     assert response.status_code == 400
-    assert "inactive" in response.json()["detail"].lower()
+    assert "inactive" in response.json()["message"].lower()
+    assert response.json()["error_code"] == "BAD_REQUEST"

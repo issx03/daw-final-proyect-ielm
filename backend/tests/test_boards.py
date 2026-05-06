@@ -100,11 +100,14 @@ def test_board_access_denied(client: TestClient, db_session: Session, auth_heade
     # Try to GET someone else's board
     response = client.get(f"/api/v1/boards/{forbidden_board.id}", headers=auth_headers)
     assert response.status_code == 404
+    assert response.json()["error_code"] == "NOT_FOUND"
     
     # Try to PATCH someone else's board
     response = client.patch(f"/api/v1/boards/{forbidden_board.id}", json={"title": "Hacked"}, headers=auth_headers)
     assert response.status_code == 404
+    assert response.json()["error_code"] == "NOT_FOUND"
     
     # Try to DELETE someone else's board
     response = client.delete(f"/api/v1/boards/{forbidden_board.id}", headers=auth_headers)
     assert response.status_code == 404
+    assert response.json()["error_code"] == "NOT_FOUND"

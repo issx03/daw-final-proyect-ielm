@@ -47,7 +47,8 @@ def test_update_me_email_conflict(client, auth_headers, db_session):
         json={"email": "other@example.com"}
     )
     assert response.status_code == 400
-    assert "already registered" in response.json()["detail"].lower()
+    assert "already registered" in response.json()["message"].lower()
+    assert response.json()["error_code"] == "BAD_REQUEST"
 
 def test_delete_me(client, auth_headers, db_session):
     response = client.delete("/api/v1/auth/me", headers=auth_headers)
