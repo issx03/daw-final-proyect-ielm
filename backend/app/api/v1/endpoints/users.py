@@ -10,6 +10,7 @@ from app.db.session import get_db
 from app.models.user import User
 from app.schemas.user import UserResponse
 from app.api.v1.endpoints.auth import get_current_active_admin
+from app.core.exceptions import NotFoundException, BadRequestException
 
 router = APIRouter()
 
@@ -30,10 +31,10 @@ def delete_user(
     """Delete a user (Admin only)."""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise NotFoundException(message="User not found")
     
     if user.id == admin.id:
-        raise HTTPException(status_code=400, detail="Admin cannot delete themselves")
+        raise BadRequestException(message="Admin cannot delete themselves")
         
     db.delete(user)
     db.commit()
@@ -48,10 +49,10 @@ def block_user(
     """Block a user (Admin only)."""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise NotFoundException(message="User not found")
     
     if user.id == admin.id:
-        raise HTTPException(status_code=400, detail="Admin cannot block themselves")
+        raise BadRequestException(message="Admin cannot block themselves")
         
     user.is_active = False
     db.commit()
@@ -67,7 +68,7 @@ def unblock_user(
     """Unblock a user (Admin only)."""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise NotFoundException(message="User not found")
         
     user.is_active = True
     db.commit()

@@ -15,8 +15,8 @@ const App = () => {
             <Route path="/" element={<Dashboard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/profile" element={<div className="pt-24 px-6 text-center">Perfil (Próximamente)</div>} />
-            <Route path="/boards/:id" element={<div className="pt-24 px-6 text-center">Detalle del Tablero (Próximamente)</div>} />
+            <Route path="/profile" element={<div className="pt-24 px-6 text-center">Profile</div>} />
+            <Route path="/boards/:id" element={<div className="pt-24 px-6 text-center">Board Detail</div>} />
           </Routes>
         </main>
       </div>

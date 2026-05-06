@@ -11,6 +11,7 @@ from app.models.board import Board
 from app.models.user import User
 from app.schemas.board import BoardCreate, BoardUpdate, BoardResponse
 from app.api.v1.endpoints.auth import get_current_active_user
+from app.core.exceptions import NotFoundException
 
 router = APIRouter()
 
@@ -54,10 +55,7 @@ def get_board(
     ).first()
     
     if not board:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Board not found"
-        )
+        raise NotFoundException(message="Board not found")
     return board
 
 
@@ -75,10 +73,7 @@ def update_board(
     ).first()
     
     if not board:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Board not found"
-        )
+        raise NotFoundException(message="Board not found")
         
     update_data = board_in.model_dump(exclude_unset=True)
     for key, value in update_data.items():
@@ -102,10 +97,7 @@ def delete_board(
     ).first()
     
     if not board:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Board not found"
-        )
+        raise NotFoundException(message="Board not found")
         
     db.delete(board)
     db.commit()
