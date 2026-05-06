@@ -73,6 +73,27 @@ def test_login_invalid_credentials(client):
         }
     )
     assert response.status_code == 401
+    data = response.json()
+    assert "message" in data
+    assert data["error_code"] == "UNAUTHORIZED"
+
+
+def test_register_duplicate_email(client):
+    """Test registering with an existing email."""
+    # Register first
+    user_data = {
+        "email": "dup@example.com",
+        "username": "dup",
+        "password": "password123"
+    }
+    client.post("/api/v1/auth/register", json=user_data)
+    
+    # Try again
+    response = client.post("/api/v1/auth/register", json=user_data)
+    assert response.status_code == 400
+    data = response.json()
+    assert data["message"] == "Email already registered"
+    assert data["error_code"] == "BAD_REQUEST"
 
 
 def test_get_me_authenticated(auth_headers, client):

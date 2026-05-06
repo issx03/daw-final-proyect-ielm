@@ -22,6 +22,7 @@ from app.core.exceptions import (
     NotFoundException, 
     ForbiddenException
 )
+from app.services.user_service import UserService
 
 
 router = APIRouter()
@@ -30,27 +31,7 @@ router = APIRouter()
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     """Register a new user."""
-    # Check if email exists
-    existing = db.query(User).filter(User.email == user.email).first()
-    if existing:
-        raise BadRequestException(message="Email already registered")
-    
-    # Check if username exists
-    existing = db.query(User).filter(User.username == user.username).first()
-    if existing:
-        raise BadRequestException(message="Username already taken")
-    
-    # Create user
-    db_user = User(
-        email=user.email,
-        username=user.username,
-        password_hash=get_password_hash(user.password)
-    )
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    
-    return db_user
+    return UserService.create_user(db=db, user_in=user)
 
 
 @router.post("/login", response_model=Token)
