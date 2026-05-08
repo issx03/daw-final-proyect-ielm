@@ -2,14 +2,16 @@ import React from 'react';
 import { Layout, User, LogOut } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
+import { useAuth } from '../../context/AuthContext';
+
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const token = localStorage.getItem('token');
+  const { token, logout, user } = useAuth();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    logout();
     navigate('/login');
   };
 
@@ -27,7 +29,7 @@ const Navbar = () => {
           <div className="flex items-center gap-6">
             <Link to="/profile" className="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">
               <User size={18} />
-              <span className="hidden sm:inline font-serif">My Space</span>
+              <span className="hidden sm:inline font-serif">{user?.username || 'My Space'}</span>
             </Link>
             <button 
               onClick={handleLogout}

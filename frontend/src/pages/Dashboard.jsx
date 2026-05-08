@@ -9,38 +9,30 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const fetchBoards = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        navigate('/login');
-        return;
-      }
-
       try {
         const data = await boardService.getAll();
         setBoards(data);
       } catch (error) {
         console.error('Error fetching boards:', error);
-        if (error.response?.status === 401) {
-          localStorage.removeItem('token');
-          navigate('/login');
-        }
+        // Error handling is partly moved to AuthContext and axios interceptors
       } finally {
         setLoading(false);
       }
     };
 
     fetchBoards();
-  }, [navigate]);
+  }, []);
 
   const handleBoardCreated = (newBoard) => {
     setBoards((prev) => [newBoard, ...prev]);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    logout();
     navigate('/login');
   };
 
