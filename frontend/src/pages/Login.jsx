@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -78,7 +78,7 @@ const Login = () => {
         </form>
 
         <p className="text-center text-slate-500 text-sm">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link to="/register" className="text-slate-900 font-semibold hover:underline">
             Register for free
           </Link>

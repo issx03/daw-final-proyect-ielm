@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import { createContext, useContext, useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import api from '../api/axios';
 import { userService } from '../api/userService';
 
@@ -63,6 +63,8 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export const useAuth = () => {
