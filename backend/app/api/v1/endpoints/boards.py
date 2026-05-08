@@ -2,16 +2,15 @@
 Boards Endpoints
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from typing import List
 
 from app.db.session import get_db
-from app.models.board import Board
 from app.models.user import User
 from app.schemas.board import BoardCreate, BoardUpdate, BoardResponse
 from app.api.v1.endpoints.auth import get_current_active_user
-from app.core.exceptions import NotFoundException
+from app.services.board_service import BoardService
 
 router = APIRouter()
 
@@ -22,7 +21,7 @@ def get_my_boards(
     current_user: User = Depends(get_current_active_user)
 ):
     """Get all boards belonging to the current user."""
-    return db.query(Board).filter(Board.user_id == current_user.id).all()
+    return BoardService.get_user_boards(db, current_user.id)
 
 
 @router.post("/", response_model=BoardResponse, status_code=status.HTTP_201_CREATED)
@@ -32,14 +31,7 @@ def create_board(
     current_user: User = Depends(get_current_active_user)
 ):
     """Create a new board for the current user."""
-    board = Board(
-        **board_in.model_dump(),
-        user_id=current_user.id
-    )
-    db.add(board)
-    db.commit()
-    db.refresh(board)
-    return board
+    return BoardService.create_board(db, current_user.id, board_in)
 
 
 @router.get("/{board_id}", response_model=BoardResponse)
@@ -49,14 +41,7 @@ def get_board(
     current_user: User = Depends(get_current_active_user)
 ):
     """Get a specific board (only if owner)."""
-    board = db.query(Board).filter(
-        Board.id == board_id,
-        Board.user_id == current_user.id
-    ).first()
-    
-    if not board:
-        raise NotFoundException(message="Board not found")
-    return board
+    return BoardService.get_board(db, current_user.id, board_id)
 
 
 @router.patch("/{board_id}", response_model=BoardResponse)
@@ -67,21 +52,7 @@ def update_board(
     current_user: User = Depends(get_current_active_user)
 ):
     """Update a board (only if owner)."""
-    board = db.query(Board).filter(
-        Board.id == board_id,
-        Board.user_id == current_user.id
-    ).first()
-    
-    if not board:
-        raise NotFoundException(message="Board not found")
-        
-    update_data = board_in.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(board, key, value)
-        
-    db.commit()
-    db.refresh(board)
-    return board
+    return BoardService.update_board(db, current_user.id, board_id, board_in)
 
 
 @router.delete("/{board_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -91,14 +62,5 @@ def delete_board(
     current_user: User = Depends(get_current_active_user)
 ):
     """Delete a board (only if owner)."""
-    board = db.query(Board).filter(
-        Board.id == board_id,
-        Board.user_id == current_user.id
-    ).first()
-    
-    if not board:
-        raise NotFoundException(message="Board not found")
-        
-    db.delete(board)
-    db.commit()
+    BoardService.delete_board(db, current_user.id, board_id)
     return None

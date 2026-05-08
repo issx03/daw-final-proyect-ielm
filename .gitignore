@@ -33,6 +33,16 @@ docker-compose.override.yml
 # Test coverage
 coverage/
 htmlcov/
+.coverage
+.pytest_cache/
+tests/.pytest_cache/
+backend/.pytest_cache/
+
+# Playwright reports and results
+playwright-report/
+test-results/
+frontend/playwright-report/
+frontend/test-results/
 
 # Temporary files
 *.tmp
