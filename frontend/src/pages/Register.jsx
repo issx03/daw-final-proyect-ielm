@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -10,6 +10,7 @@ const Register = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,24 +24,7 @@ const Register = () => {
     setLoading(true);
 
     try {
-      await axios.post('/auth/register', {
-        username,
-        email,
-        password,
-      });
-
-      // Login automatically after registration
-      const formData = new URLSearchParams();
-      formData.append('username', username);
-      formData.append('password', password);
-
-      const loginResponse = await axios.post('/auth/login', formData, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
-
-      localStorage.setItem('token', loginResponse.data.access_token);
+      await register(username, email, password);
       navigate('/');
     } catch (err) {
       console.error('Registration error:', err);
@@ -124,7 +108,7 @@ const Register = () => {
         </form>
 
         <p className="mt-8 text-center text-slate-500 text-sm">
-          Already have an account?{' '}
+          {"Already have an account? "}
           <Link to="/login" className="text-slate-900 font-semibold hover:underline">
             Login
           </Link>
