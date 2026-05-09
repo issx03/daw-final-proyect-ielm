@@ -4,6 +4,8 @@ import Navbar from './components/common/Navbar';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import BoardView from './pages/BoardView';
+import Profile from './pages/Profile';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
@@ -24,12 +26,12 @@ const App = () => {
               <Route path="/register" element={<Register />} />
               <Route path="/profile" element={
                 <ProtectedRoute>
-                  <div className="pt-24 px-6 text-center">Profile</div>
+                  <Profile />
                 </ProtectedRoute>
               } />
               <Route path="/boards/:id" element={
                 <ProtectedRoute>
-                  <div className="pt-24 px-6 text-center">Board Detail</div>
+                  <BoardView />
                 </ProtectedRoute>
               } />
             </Routes>

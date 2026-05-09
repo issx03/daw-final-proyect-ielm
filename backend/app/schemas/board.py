@@ -30,3 +30,12 @@ class BoardResponse(BoardBase):
 
     class Config:
         from_attributes = True
+
+from typing import List
+from app.schemas.list import ListDetailResponse
+
+class BoardDetailResponse(BoardResponse):
+    lists: List[ListDetailResponse] = []
+
+    class Config:
+        from_attributes = True

@@ -8,7 +8,7 @@ from typing import List
 
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.board import BoardCreate, BoardUpdate, BoardResponse
+from app.schemas.board import BoardCreate, BoardUpdate, BoardResponse, BoardDetailResponse
 from app.api.v1.endpoints.auth import get_current_active_user
 from app.services.board_service import BoardService
 
@@ -34,7 +34,7 @@ def create_board(
     return BoardService.create_board(db, current_user.id, board_in)
 
 
-@router.get("/{board_id}", response_model=BoardResponse)
+@router.get("/{board_id}", response_model=BoardDetailResponse)
 def get_board(
     board_id: int,
     db: Session = Depends(get_db),
