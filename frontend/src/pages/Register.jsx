@@ -108,7 +108,7 @@ const Register = () => {
         </form>
 
         <p className="mt-8 text-center text-slate-500 text-sm">
-          Already have an account?{' '}
+          {"Already have an account? "}
           <Link to="/login" className="text-slate-900 font-semibold hover:underline">
             Login
           </Link>
