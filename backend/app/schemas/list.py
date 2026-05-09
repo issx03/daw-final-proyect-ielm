@@ -25,3 +25,12 @@ class ListResponse(ListBase):
 
     class Config:
         from_attributes = True
+
+from typing import List
+from app.schemas.card import CardResponse
+
+class ListDetailResponse(ListResponse):
+    cards: List[CardResponse] = []
+
+    class Config:
+        from_attributes = True
