@@ -73,7 +73,7 @@ const Dashboard = () => {
       {boards.length === 0 ? (
         <div className="py-24 bg-white border border-slate-100 rounded-[2rem] flex flex-col items-center justify-center text-slate-400 shadow-editorial">
           <BoardIcon size={64} className="mb-6 opacity-20" />
-          <p className="text-xl font-serif text-slate-800 mb-2">It seems you don&apos;t have any boards yet</p>
+          <p className="text-xl font-serif text-slate-800 mb-2">It seems you don't have any boards yet</p>
           <p className="text-sm mb-8">Start by creating a new one above!</p>
           <button 
             onClick={() => setIsModalOpen(true)}
