@@ -1,21 +1,49 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import {
+  DndContext,
+  closestCorners,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+} from '@dnd-kit/core';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import useBoardStore from '../store/boardStore';
 import ListCard from '../components/board/ListCard';
+import { CardItemContent } from '../components/board/CardItem';
 import CardModal from '../components/board/CardModal';
+import DnDErrorBoundary from '../components/common/DnDErrorBoundary';
+
+const isTouchDevice = typeof window !== 'undefined' &&
+  ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
 const BoardView = () => {
   const { id } = useParams();
-  const { board, lists, fetchBoard, loading, error, createList } = useBoardStore();
+  const { board, lists, fetchBoard, loading, error, createList, moveCardOptimistic, moveCardBackend, findCardContainer } = useBoardStore();
   const [newListTitle, setNewListTitle] = useState('');
   const [isCreatingList, setIsCreatingList] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
+  const [activeCard, setActiveCard] = useState(null);
 
   useEffect(() => {
     if (id) {
       fetchBoard(id);
     }
   }, [id, fetchBoard]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+        ...(isTouchDevice && { delay: 250, tolerance: 5 }),
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const handleCreateList = async (e) => {
     e.preventDefault();
@@ -32,6 +60,42 @@ const BoardView = () => {
 
   const handleCloseCardModal = () => {
     setSelectedCard(null);
+  };
+
+  const handleDragStart = ({ active }) => {
+    const container = findCardContainer(active.id);
+    if (container) {
+      const cardId = String(active.id).replace('card-', '');
+      const card = useBoardStore.getState().cards[container]?.find(c => String(c.id) === cardId);
+      if (card) setActiveCard(card);
+    }
+  };
+
+  const handleDragOver = ({ active, over }) => {
+    if (!active || !over || active.id === over.id) return;
+    setTimeout(() => {
+      moveCardOptimistic(active.id, over.id);
+    }, 0);
+  };
+
+  const handleDragEnd = async ({ active, over }) => {
+    setActiveCard(null);
+    if (!over) return;
+
+    const container = findCardContainer(over.id);
+    if (!container) return;
+
+    const cardId = String(active.id).replace('card-', '');
+    const containerCards = useBoardStore.getState().cards[container] || [];
+    const index = containerCards.findIndex(c => String(c.id) === cardId);
+
+    if (index !== -1) {
+      await moveCardBackend(active.id, container, index);
+    }
+  };
+
+  const handleDragCancel = () => {
+    setActiveCard(null);
   };
 
   if (loading) return (
@@ -60,9 +124,25 @@ const BoardView = () => {
 
       <div className="flex-1 overflow-x-auto pb-4 custom-scrollbar">
         <div className="flex items-start gap-6 h-full px-1">
-          {lists.map(list => (
-            <ListCard key={list.id} list={list} onCardClick={handleCardClick} />
-          ))}
+          <DnDErrorBoundary>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCorners}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDragEnd={handleDragEnd}
+              onDragCancel={handleDragCancel}
+            >
+              {lists.map(list => (
+                <ListCard key={list.id} list={list} onCardClick={handleCardClick} />
+              ))}
+              <DragOverlay>
+                {activeCard ? (
+                  <CardItemContent card={activeCard} isOverlay />
+                ) : null}
+              </DragOverlay>
+            </DndContext>
+          </DnDErrorBoundary>
 
           {/* Create List Button / Form */}
           <div className="w-80 shrink-0">

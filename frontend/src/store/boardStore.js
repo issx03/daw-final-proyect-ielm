@@ -168,6 +168,109 @@ const useBoardStore = create((set, get) => ({
       console.error('Failed to delete card:', error);
       throw error;
     }
+  },
+
+  findCardContainer: (id) => {
+    if (!id) return null;
+    const idStr = String(id);
+    const cards = get().cards;
+
+    if (idStr.startsWith('card-')) {
+      const cardId = idStr.replace('card-', '');
+      for (const listId in cards) {
+        if (cards[listId].some(c => String(c.id) === cardId)) {
+          return String(listId);
+        }
+      }
+    }
+
+    if (idStr.startsWith('list-')) {
+      return idStr.replace('list-', '');
+    }
+
+    for (const listId in cards) {
+      if (cards[listId].some(c => String(c.id) === idStr)) {
+        return String(listId);
+      }
+    }
+
+    return null;
+  },
+
+  moveCardOptimistic: (activeId, overId) => {
+    set((state) => {
+      const activeIdStr = String(activeId);
+      const overIdStr = String(overId);
+
+      const activeContainer = get().findCardContainer(activeId);
+      const overContainer = get().findCardContainer(overId);
+
+      if (!activeContainer || !overContainer) return state;
+
+      const currentCards = { ...state.cards };
+      const realActiveId = activeIdStr.replace('card-', '');
+      const realOverId = overIdStr.replace('card-', '').replace('list-', '');
+
+      if (activeContainer === overContainer) {
+        const items = [...(currentCards[activeContainer] || [])];
+        const activeIndex = items.findIndex(c => String(c.id) === realActiveId);
+        const overIndex = items.findIndex(c => String(c.id) === realOverId);
+
+        if (activeIndex === -1 || overIndex === -1 || activeIndex === overIndex) return state;
+
+        const newItems = [...items];
+        const [movedItem] = newItems.splice(activeIndex, 1);
+        newItems.splice(overIndex, 0, movedItem);
+
+        return {
+          cards: {
+            ...currentCards,
+            [activeContainer]: newItems
+          }
+        };
+      }
+
+      let movedItem = null;
+      const newCards = {};
+
+      Object.keys(currentCards).forEach(listId => {
+        const items = [...(currentCards[listId] || [])];
+        const index = items.findIndex(c => String(c.id) === realActiveId);
+        if (index !== -1) {
+          [movedItem] = items.splice(index, 1);
+        }
+        newCards[listId] = items;
+      });
+
+      if (!movedItem) return state;
+
+      const overItems = [...(newCards[overContainer] || [])];
+      const overIndex = overItems.findIndex(c => String(c.id) === realOverId);
+
+      const isOverList = overIdStr.startsWith('list-');
+      const insertAt = isOverList ? overItems.length : (overIndex >= 0 ? overIndex : overItems.length);
+
+      overItems.splice(insertAt, 0, { ...movedItem, list_id: parseInt(overContainer) });
+      newCards[overContainer] = overItems;
+
+      return { cards: newCards };
+    });
+  },
+
+  moveCardBackend: async (activeId, overContainerId, index) => {
+    const cardId = String(activeId).replace('card-', '');
+    try {
+      await api.patch(`/cards/${cardId}/move`, {
+        list_id: parseInt(overContainerId),
+        position: index
+      });
+    } catch (err) {
+      console.error('Failed to move card in backend:', err);
+      const board = get().board;
+      if (board) {
+        get().fetchBoard(board.id);
+      }
+    }
   }
 }));
 
