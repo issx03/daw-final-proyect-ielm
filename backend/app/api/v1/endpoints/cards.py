@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.user import User
 from app.api.v1.endpoints.auth import get_current_active_user
-from app.schemas.card import CardCreate, CardUpdate, CardResponse
+from app.schemas.card import CardCreate, CardUpdate, CardMove, CardResponse
 from app.services.card_service import CardService
 
 
@@ -56,6 +56,17 @@ def update_card(
 ):
     """Update a card."""
     return CardService.update_card(db, current_user.id, card_id, card_in)
+
+
+@router.patch("/{card_id}/move", response_model=CardResponse)
+def move_card(
+    card_id: int,
+    move_data: CardMove,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """Move a card to a new list/position."""
+    return CardService.move_card(db, current_user.id, card_id, move_data)
 
 
 @router.delete("/{card_id}", status_code=status.HTTP_204_NO_CONTENT)

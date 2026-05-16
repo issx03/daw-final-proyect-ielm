@@ -8,7 +8,7 @@ from pydantic import BaseModel
 class CardBase(BaseModel):
     title: str
     description: str | None = None
-    position: int = 0
+    position: float = 1000.0
 
 
 class CardCreate(CardBase):
@@ -18,8 +18,13 @@ class CardCreate(CardBase):
 class CardUpdate(BaseModel):
     title: str | None = None
     description: str | None = None
-    position: int | None = None
+    position: float | None = None
     list_id: int | None = None
+
+
+class CardMove(BaseModel):
+    list_id: int
+    position: int
 
 
 class CardResponse(CardBase):
