@@ -41,12 +41,20 @@ const Navbar = () => {
         )}
 
         {!token && !isAuthPage && (
-          <Link 
-            to="/login"
-            className="text-sm font-semibold text-slate-900 hover:underline font-serif"
-          >
-            Login
-          </Link>
+          <div className="flex items-center gap-6">
+            <Link 
+              to="/login"
+              className="text-sm font-semibold text-slate-900 hover:underline font-serif"
+            >
+              Login
+            </Link>
+            <Link 
+              to="/register"
+              className="text-sm font-semibold text-white bg-slate-900 px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors font-serif"
+            >
+              Register
+            </Link>
+          </div>
         )}
       </div>
     </nav>
