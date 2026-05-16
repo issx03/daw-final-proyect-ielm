@@ -63,6 +63,32 @@ def test_login_user(client):
     assert data["token_type"] == "bearer"
 
 
+def test_login_with_email(client):
+    """Test user login with email instead of username."""
+    # First register
+    client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "email_login@example.com",
+            "username": "emaillogin",
+            "password": "password123"
+        }
+    )
+    
+    # Then login with email
+    response = client.post(
+        "/api/v1/auth/login",
+        data={
+            "username": "email_login@example.com",
+            "password": "password123"
+        }
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "access_token" in data
+    assert data["token_type"] == "bearer"
+
+
 def test_login_invalid_credentials(client):
     """Test login with invalid credentials."""
     response = client.post(
