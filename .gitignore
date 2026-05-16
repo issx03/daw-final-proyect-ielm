@@ -67,6 +67,12 @@ opencode.json
 .skills/
 skills-lock.json
 
+# AI IDE
+.claude/
+
+# Design specs (AI-generated, not part of project)
+DESIGN.md
+
 # Virtual environments
 venv/
 .venv/
