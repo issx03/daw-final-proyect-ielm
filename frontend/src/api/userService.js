@@ -9,6 +9,11 @@ export const userService = {
   updateMe: async (userData) => {
     const response = await api.patch('/auth/me', userData);
     return response.data;
+  },
+
+  deleteMe: async (data) => {
+    const response = await api.delete('/auth/me', { data });
+    return response.data;
   }
 };
 

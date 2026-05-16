@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useBoardStore from '../store/boardStore';
 import ListCard from '../components/board/ListCard';
+import CardModal from '../components/board/CardModal';
 
 const BoardView = () => {
   const { id } = useParams();
   const { board, lists, fetchBoard, loading, error, createList } = useBoardStore();
   const [newListTitle, setNewListTitle] = useState('');
   const [isCreatingList, setIsCreatingList] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(null);
 
   useEffect(() => {
     if (id) {
@@ -22,6 +24,14 @@ const BoardView = () => {
     await createList(id, newListTitle);
     setNewListTitle('');
     setIsCreatingList(false);
+  };
+
+  const handleCardClick = (cardId, listId) => {
+    setSelectedCard({ cardId, listId });
+  };
+
+  const handleCloseCardModal = () => {
+    setSelectedCard(null);
   };
 
   if (loading) return (
@@ -51,7 +61,7 @@ const BoardView = () => {
       <div className="flex-1 overflow-x-auto pb-4 custom-scrollbar">
         <div className="flex items-start gap-6 h-full px-1">
           {lists.map(list => (
-            <ListCard key={list.id} list={list} />
+            <ListCard key={list.id} list={list} onCardClick={handleCardClick} />
           ))}
 
           {/* Create List Button / Form */}
@@ -97,6 +107,14 @@ const BoardView = () => {
           </div>
         </div>
       </div>
+
+      {selectedCard && (
+        <CardModal
+          cardId={selectedCard.cardId}
+          listId={selectedCard.listId}
+          onClose={handleCloseCardModal}
+        />
+      )}
     </div>
   );
 };

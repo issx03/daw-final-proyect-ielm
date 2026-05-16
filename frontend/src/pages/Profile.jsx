@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { userService } from '../api/userService';
-import { User, Mail, Shield, Save, CheckCircle, AlertCircle } from 'lucide-react';
+import { User, Mail, Shield, Save, CheckCircle, AlertCircle, Trash2 } from 'lucide-react';
+import ConfirmModal from '../components/common/ConfirmModal';
 
 const Profile = () => {
-  const { user, setUser } = useAuth();
+  const { user, setUser, logout } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: user?.username || '',
     email: user?.email || '',
@@ -12,6 +15,9 @@ const Profile = () => {
   });
   const [status, setStatus] = useState({ type: null, message: '' });
   const [loading, setLoading] = useState(false);
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -48,6 +54,12 @@ const Profile = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDeleteAccount = async () => {
+    await userService.deleteMe({ password: deletePassword });
+    logout();
+    navigate('/login');
   };
 
   return (
@@ -169,6 +181,20 @@ const Profile = () => {
             </button>
           </div>
         </form>
+
+        {/* Danger Zone */}
+        <div className="mt-12 pt-8 border-t border-border/40">
+          <h3 className="text-sm font-black uppercase tracking-[0.2em] text-red-600 mb-4 flex items-center gap-2">
+            <Trash2 size={14} /> Danger Zone
+          </h3>
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="w-full flex items-center justify-center gap-3 py-4 border-2 border-red-200 text-red-600 rounded-2xl font-medium hover:bg-red-50 hover:border-red-300 transition-all duration-300"
+          >
+            <Trash2 size={18} />
+            Delete Account
+          </button>
+        </div>
       </div>
 
       <div className="mt-12 text-center">
@@ -176,6 +202,33 @@ const Profile = () => {
           Member since {new Date().getFullYear()} • Trellix Premium Account
         </p>
       </div>
+
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title="Delete your account?"
+        message="This action is permanent. All your boards, lists, and cards will be permanently deleted and cannot be recovered."
+        confirmLabel="Delete Account"
+        variant="danger"
+        onConfirm={handleDeleteAccount}
+        onClose={() => {
+          setShowDeleteConfirm(false);
+          setDeletePassword('');
+        }}
+      >
+        <div className="space-y-2">
+          <label className="text-xs font-medium text-slate-600 block">
+            Enter your password to confirm
+          </label>
+          <input
+            type="password"
+            value={deletePassword}
+            onChange={(e) => setDeletePassword(e.target.value)}
+            placeholder="Your password"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+            autoFocus
+          />
+        </div>
+      </ConfirmModal>
     </div>
   );
 };
