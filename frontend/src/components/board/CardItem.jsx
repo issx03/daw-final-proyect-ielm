@@ -1,8 +1,11 @@
 import React from 'react';
 
-const CardItem = ({ card }) => {
+const CardItem = ({ card, onClick }) => {
   return (
-    <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300 hover:shadow transition-all cursor-grab active:cursor-grabbing group">
+    <div
+      onClick={onClick}
+      className="bg-white p-3 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300 hover:shadow transition-all cursor-pointer active:cursor-grabbing group"
+    >
       <div className="flex justify-between items-start mb-1">
         <h4 className="text-sm font-medium text-slate-700 leading-snug">{card.title}</h4>
         <button className="text-slate-400 hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-slate-100">
