@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useDroppable } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import useBoardStore from '../../store/boardStore';
 import CardItem from './CardItem';
 import ConfirmModal from '../common/ConfirmModal';
@@ -17,6 +19,8 @@ const ListCard = ({ list, onCardClick }) => {
   const [editError, setEditError] = useState('');
 
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const { setNodeRef } = useDroppable({ id: `list-${list.id}` });
 
   const handleCreateCard = async (e) => {
     e.preventDefault();
@@ -98,10 +102,12 @@ const ListCard = ({ list, onCardClick }) => {
       </div>
 
       {/* Cards Container */}
-      <div className="px-3 pb-2 flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2">
-        {cards.map(card => (
-          <CardItem key={card.id} card={card} onClick={() => onCardClick?.(card.id, list.id)} />
-        ))}
+      <div ref={setNodeRef} className="px-3 pb-2 flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2">
+        <SortableContext items={cards.map(c => `card-${c.id}`)} strategy={verticalListSortingStrategy}>
+          {cards.map(card => (
+            <CardItem key={card.id} card={card} onClick={() => onCardClick?.(card.id, list.id)} />
+          ))}
+        </SortableContext>
 
         {/* Create Card Form */}
         {isCreatingCard && (
