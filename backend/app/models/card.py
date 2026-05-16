@@ -2,7 +2,7 @@
 Card Model
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Float
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
@@ -16,7 +16,7 @@ class Card(Base):
     title = Column(String(255), nullable=False)
     description = Column(Text, default="")
     list_id = Column(Integer, ForeignKey("lists.id"), nullable=False)
-    position = Column(Integer, default=0)
+    position = Column(Float, default=1000.0)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     

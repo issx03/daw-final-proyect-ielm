@@ -25,8 +25,7 @@ def test_create_card(client: TestClient, db_session: Session, auth_headers: dict
     card_data = {
         "title": "New Task",
         "description": "Details about the task",
-        "list_id": list1.id,
-        "position": 0
+        "list_id": list1.id
     }
     response = client.post("/api/v1/cards/", json=card_data, headers=auth_headers)
     assert response.status_code == 201
@@ -35,7 +34,7 @@ def test_create_card(client: TestClient, db_session: Session, auth_headers: dict
     assert data["title"] == card_data["title"]
     assert data["description"] == card_data["description"]
     assert data["list_id"] == card_data["list_id"]
-    assert data["position"] == card_data["position"]
+    assert data["position"] == 1000.0  # Auto-assigned first position
 
 
 def test_get_cards_by_list(client: TestClient, db_session: Session, auth_headers: dict):
@@ -49,8 +48,8 @@ def test_get_cards_by_list(client: TestClient, db_session: Session, auth_headers
     db_session.add(list1)
     db_session.commit()
     
-    card1 = Card(title="Task 1", list_id=list1.id, position=0)
-    card2 = Card(title="Task 2", list_id=list1.id, position=1)
+    card1 = Card(title="Task 1", list_id=list1.id, position=1000.0)
+    card2 = Card(title="Task 2", list_id=list1.id, position=2000.0)
     db_session.add_all([card1, card2])
     db_session.commit()
     
@@ -74,7 +73,7 @@ def test_update_card(client: TestClient, db_session: Session, auth_headers: dict
     db_session.add(list1)
     db_session.commit()
     
-    card1 = Card(title="Task 1", list_id=list1.id, position=0)
+    card1 = Card(title="Task 1", list_id=list1.id, position=1000.0)
     db_session.add(card1)
     db_session.commit()
     
@@ -90,6 +89,34 @@ def test_update_card(client: TestClient, db_session: Session, auth_headers: dict
     assert data["description"] == "Added description"
 
 
+def test_move_card(client: TestClient, db_session: Session, auth_headers: dict):
+    """Test moving a card between lists with float positions."""
+    user = db_session.query(User).filter(User.email == "test@example.com").first()
+    board = Board(title="Test Board", user_id=user.id)
+    db_session.add(board)
+    db_session.commit()
+    
+    list1 = List(title="To Do", board_id=board.id)
+    list2 = List(title="Done", board_id=board.id)
+    db_session.add_all([list1, list2])
+    db_session.commit()
+    
+    card1 = Card(title="Task 1", list_id=list1.id, position=1000.0)
+    db_session.add(card1)
+    db_session.commit()
+    
+    move_data = {
+        "list_id": list2.id,
+        "position": 0
+    }
+    response = client.patch(f"/api/v1/cards/{card1.id}/move", json=move_data, headers=auth_headers)
+    assert response.status_code == 200
+    
+    data = response.json()
+    assert data["list_id"] == list2.id
+    assert data["position"] == 1000.0  # First card in empty list
+
+
 def test_delete_card(client: TestClient, db_session: Session, auth_headers: dict):
     """Test deleting a card."""
     user = db_session.query(User).filter(User.email == "test@example.com").first()
@@ -101,7 +128,7 @@ def test_delete_card(client: TestClient, db_session: Session, auth_headers: dict
     db_session.add(list1)
     db_session.commit()
     
-    card1 = Card(title="Task 1", list_id=list1.id, position=0)
+    card1 = Card(title="Task 1", list_id=list1.id, position=1000.0)
     db_session.add(card1)
     db_session.commit()
     
