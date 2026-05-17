@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Layout, User, Plus, Loader2, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import boardService from '../../api/boardService';
-import { normalizeBoardColor } from '../../utils/boardColors';
+
 
 const Sidebar = () => {
   const location = useLocation();
@@ -100,7 +100,7 @@ const Sidebar = () => {
                   >
                     <div
                       className="w-2 h-2 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: normalizeBoardColor(board.color) }}
+                      style={{ backgroundColor: board.color }}
                     />
                     <span className="truncate">{board.title}</span>
                   </button>

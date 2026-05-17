@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Plus, Layout as BoardIcon, Clock, ChevronRight } from 'lucide-react';
 import boardService from '../api/boardService';
-import { normalizeBoardColor } from '../utils/boardColors';
+
 import CreateBoardModal from '../components/boards/CreateBoardModal';
 
 const Dashboard = () => {
@@ -89,7 +89,7 @@ const Dashboard = () => {
                 {/* Color strip */}
                 <div 
                   className="h-1.5 w-full rounded-full mb-4 transition-all duration-300 group-hover:scale-[1.02]"
-                  style={{ backgroundColor: normalizeBoardColor(board.color) }}
+                  style={{ backgroundColor: board.color }}
                 />
                 
                 {/* Title */}

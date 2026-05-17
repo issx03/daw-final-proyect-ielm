@@ -17,7 +17,7 @@ import { CardItemContent } from '../components/board/CardItem';
 import CardModal from '../components/board/CardModal';
 import ConfirmModal from '../components/common/ConfirmModal';
 import DnDErrorBoundary from '../components/common/DnDErrorBoundary';
-import { normalizeBoardColor } from '../utils/boardColors';
+
 
 const isTouchDevice = typeof window !== 'undefined' &&
   ('ontouchstart' in window || navigator.maxTouchPoints > 0);
@@ -168,7 +168,7 @@ const BoardView = () => {
           <div className="flex items-center gap-3">
             <div 
               className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: normalizeBoardColor(board.color) }}
+              style={{ backgroundColor: board.color }}
             />
             <h1 className="text-xl font-semibold text-[#E8E8EF] tracking-tight">
               {board.title}
