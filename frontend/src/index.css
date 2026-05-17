@@ -4,28 +4,113 @@
 
 @layer base {
   body {
-    @apply bg-background text-primary antialiased;
+    @apply bg-background text-primary antialiased selection:bg-accent/20;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
-  h1, h2, h3, h4 {
-    @apply font-semibold tracking-tight;
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight text-primary;
+    font-family: 'Outfit', sans-serif;
   }
 }
 
 @layer components {
-  .editorial-card {
-    @apply bg-surface-lowest rounded-xl shadow-soft border border-transparent 
-           transition-all duration-300 hover:shadow-editorial hover:-translate-y-1;
+  .board-bg {
+    background-color: #1E1E28;
   }
 
-  .nav-link {
-    @apply px-4 py-2 rounded-full transition-colors duration-200 
-           hover:bg-surface-low text-secondary hover:text-primary;
+  .saas-panel {
+    @apply bg-white/90 backdrop-blur-xl border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .saas-panel-density {
+    @apply bg-slate-50 border border-slate-200 rounded-lg p-2;
+  }
+
+  .saas-card {
+    @apply bg-white rounded-xl shadow-sm border border-slate-200/60 
+           transition-all duration-200 ease-out hover:border-indigo-600/20 
+           hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98];
   }
 
   .btn-primary {
-    @apply bg-primary text-primary-foreground px-6 py-2 rounded-full 
-           font-medium transition-transform duration-200 active:scale-95;
+    @apply px-4 py-[8px] rounded-xl bg-slate-900 text-white font-bold text-sm 
+           hover:bg-slate-800 transition-all duration-200 active:scale-95 shadow-sm;
   }
+
+  .input-saas {
+    @apply bg-slate-50 border border-slate-200 focus:border-indigo-600/40 
+           focus:ring-4 focus:ring-indigo-600/5 rounded-xl transition-all duration-300 
+           text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none;
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 rounded-full hover:bg-slate-300 transition-colors;
+}
+
+/* ── Professional Motion Tokens ── */
+
+/* ── Auth Panel Gradient ── */
+.auth-panel-gradient {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 25%, #f8fafc 50%, #e8edf2 75%, #f1f5f9 100%);
+}
+
+@keyframes reveal-up {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes reveal-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.99);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.reveal-staggered > * {
+  opacity: 0;
+  animation: reveal-up 200ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
+}
+
+.reveal-item {
+  opacity: 0;
+  animation: reveal-in 150ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
+}
+
+.reveal-staggered > *:nth-child(1) { animation-delay: 0.05s; }
+.reveal-staggered > *:nth-child(2) { animation-delay: 0.1s; }
+.reveal-staggered > *:nth-child(3) { animation-delay: 0.15s; }
+.reveal-staggered > *:nth-child(4) { animation-delay: 0.2s; }
+.reveal-staggered > *:nth-child(5) { animation-delay: 0.25s; }
+
+.motion-blur-in {
+  animation: reveal-in 400ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.hover-lift {
+  transition: transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px) scale(1.005);
 }

@@ -1,34 +1,33 @@
-import React from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import useBoardStore from '../../store/boardStore';
+import { useAuth } from '../../context/AuthContext';
 
 export const CardItemContent = React.memo(React.forwardRef(
   ({ card, isOverlay, isDragging, style, onClick, ...props }, ref) => {
+    const { user } = useAuth();
+    const initials = user?.username?.slice(0, 2).toUpperCase() || 'U';
+
     return (
       <div
         ref={ref}
         style={style}
         onClick={onClick}
-        className={`bg-white p-3 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300 hover:shadow transition-all cursor-pointer active:cursor-grabbing group ${
+        className={`group relative bg-[#2E2E40] rounded-xl border border-[#3A3A4A] p-3 cursor-pointer transition-all duration-200 hover:border-[#4A4A5A] hover:bg-[#363648] active:cursor-grabbing ${
           isDragging ? 'opacity-50' : ''
-        } ${isOverlay ? 'opacity-100 rotate-2 shadow-xl' : ''}`}
+        } ${isOverlay ? 'opacity-100 rotate-2 shadow-2xl' : ''}`}
         {...props}
       >
-        <div className="flex justify-between items-start mb-1">
-          <h4 className="text-sm font-medium text-slate-700 leading-snug">{card.title}</h4>
-          <button className="text-slate-400 hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-slate-100">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-          </button>
-        </div>
-        
-        {card.description && (
-          <p className="text-xs text-slate-500 line-clamp-2 mt-1">{card.description}</p>
-        )}
-        
-        <div className="flex items-center gap-2 mt-3 text-xs text-slate-400">
-          <div className="flex items-center gap-1" title="Comments">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            <span>0</span>
+        <div className="flex flex-col gap-2">
+          <h4 className="text-[13px] font-semibold text-[#E8E8EF] leading-snug tracking-tight">
+            {card.title}
+          </h4>
+          
+          <div className="flex items-center justify-end pt-2 border-t border-[#3A3A4A]">
+            <div className="w-5 h-5 rounded-full bg-[#4ECDC4] flex items-center justify-center text-[8px] font-bold text-[#1A1A24]">
+              {initials}
+            </div>
           </div>
         </div>
       </div>
@@ -36,7 +35,11 @@ export const CardItemContent = React.memo(React.forwardRef(
   }
 ));
 
-const CardItem = ({ card, onClick }) => {
+const CardItem = React.memo(({ card, listId }) => {
+  const setSelectedCard = useBoardStore(state => state.setSelectedCard);
+  const pointerStartX = useRef(0);
+  const pointerStartY = useRef(0);
+  
   const {
     attributes,
     listeners,
@@ -53,17 +56,43 @@ const CardItem = ({ card, onClick }) => {
     transition,
   };
 
+  const handlePointerDown = useCallback((e) => {
+    pointerStartX.current = e.clientX;
+    pointerStartY.current = e.clientY;
+    if (listeners && listeners.onPointerDown) {
+      listeners.onPointerDown(e);
+    }
+  }, [listeners]);
+
+  const handleClick = useCallback((e) => {
+    const distance = Math.sqrt(
+      Math.pow(e.clientX - pointerStartX.current, 2) +
+      Math.pow(e.clientY - pointerStartY.current, 2)
+    );
+    
+    if (distance > 3) {
+      return;
+    }
+    
+    setSelectedCard(card, listId);
+  }, [card, listId, setSelectedCard]);
+
+  const combinedListeners = {
+    ...listeners,
+    onPointerDown: handlePointerDown,
+  };
+
   return (
     <CardItemContent
       ref={setNodeRef}
       style={style}
       card={card}
       isDragging={isDragging}
-      onClick={onClick}
+      onClick={handleClick}
       {...attributes}
-      {...listeners}
+      {...combinedListeners}
     />
   );
-};
+});
 
 export default CardItem;

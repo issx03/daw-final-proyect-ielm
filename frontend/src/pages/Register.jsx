@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { User, Mail, Lock, ArrowRight, Shield } from 'lucide-react';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -9,15 +10,17 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { register, token } = useAuth();
   const navigate = useNavigate();
-  const { register } = useAuth();
+
+  if (token) return <Navigate to="/dashboard" replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError('Passwords do not match');
       return;
     }
 
@@ -25,94 +28,152 @@ const Register = () => {
 
     try {
       await register(username, email, password);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       console.error('Registration error:', err);
-      const detail = err.response?.data?.detail;
-      setError(typeof detail === 'string' ? detail : 'Registration error. Make sure to fill all fields.');
+      const message = err.response?.data?.message || 'Registration failed. Check your data and try again.';
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-editorial p-8">
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-serif text-slate-800 mb-2">Create your account</h1>
-          <p className="text-slate-500">Join the Trellix community</p>
-        </div>
+    <div className="min-h-[calc(100vh-3.5rem)] flex bg-white">
+      {/* Visual Section */}
+      <div className="hidden lg:flex flex-1 relative items-center justify-center overflow-hidden auth-panel-gradient">
+        <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-indigo-200/30 rounded-full blur-[100px]" />
+        <div className="absolute bottom-1/4 left-1/4 w-[350px] h-[350px] bg-slate-300/20 rounded-full blur-[100px]" />
+        
+        <div className="relative z-10 max-w-md text-center px-12 reveal-up">
+           <h3 className="text-3xl font-bold text-slate-800 mb-4 tracking-tight">
+             Start Organizing.
+           </h3>
+           <p className="text-slate-500 font-medium leading-relaxed">
+             Join teams that get things done. Boards, lists, cards — your workflow, your rules.
+           </p>
+         </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm leading-relaxed">
-              {error}
+      {/* Form Section */}
+      <div className="flex-1 flex flex-col justify-center px-6 py-12 lg:px-24">
+        <div className="mx-auto w-full max-w-sm">
+          <div className="mb-8">
+            <span className="text-2xl font-extrabold tracking-tight text-slate-900">
+              Trellix<span className="text-indigo-600">.</span>
+            </span>
+          </div>
+
+          <div className="mb-10">
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900 font-['Outfit'] mb-2">
+              Get Started.
+            </h2>
+            <p className="text-slate-500 font-medium">
+              Create your account and start managing with precision.
+            </p>
+          </div>
+
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            {error && (
+              <div className="p-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-xs font-bold flex items-center gap-2 animate-shake">
+                <Shield size={14} />
+                {error}
+              </div>
+            )}
+            
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                Username
+              </label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-slate-900 transition-colors">
+                  <User size={16} />
+                </div>
+                <input
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="block w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/5 focus:border-slate-900 transition-all"
+                  placeholder="e.g. jdoe_trellix"
+                />
+              </div>
             </div>
-          )}
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 block ml-1">Username</label>
-            <input
-              type="text"
-              required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-slate-400 focus:ring-0 transition-all outline-none bg-slate-50/50"
-              placeholder="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                Email
+              </label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-slate-900 transition-colors">
+                  <Mail size={16} />
+                </div>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="block w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/5 focus:border-slate-900 transition-all"
+                  placeholder="name@company.com"
+                />
+              </div>
+            </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 block ml-1">Email</label>
-            <input
-              type="email"
-              required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-slate-400 focus:ring-0 transition-all outline-none bg-slate-50/50"
-              placeholder="you@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                Password
+              </label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-slate-900 transition-colors">
+                  <Lock size={16} />
+                </div>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="block w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/5 focus:border-slate-900 transition-all"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 block ml-1">Password</label>
-            <input
-              type="password"
-              required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-slate-400 focus:ring-0 transition-all outline-none bg-slate-50/50"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                Confirm Password
+              </label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-slate-900 transition-colors">
+                  <Lock size={16} />
+                </div>
+                <input
+                  type="password"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="block w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/5 focus:border-slate-900 transition-all"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 block ml-1">Confirm password</label>
-            <input
-              type="password"
-              required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-slate-400 focus:ring-0 transition-all outline-none bg-slate-50/50"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-          </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-3.5 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-all active:scale-[0.98] shadow-xl shadow-slate-100 group"
+            >
+              {loading ? 'Creating...' : 'Create Account'}
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            </button>
+          </form>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-slate-900 text-white py-4 rounded-xl font-medium shadow-soft hover:bg-slate-800 transition-all disabled:opacity-50 mt-4"
-          >
-            {loading ? 'Creating account...' : 'Start now'}
-          </button>
-        </form>
-
-        <p className="mt-8 text-center text-slate-500 text-sm">
-          {"Already have an account? "}
-          <Link to="/login" className="text-slate-900 font-semibold hover:underline">
-            Login
-          </Link>
-        </p>
+          <p className="mt-10 text-center text-sm text-slate-500 font-medium">
+            Already a member?{' '}
+            <Link to="/login" className="text-slate-900 font-bold hover:underline">
+              Log in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

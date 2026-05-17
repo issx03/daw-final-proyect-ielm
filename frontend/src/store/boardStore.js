@@ -7,8 +7,12 @@ const useBoardStore = create((set, get) => ({
   board: null,
   lists: [],
   cards: {}, // Normalized state: Map of lists IDs to arrays of cards { listId: [card1, card2] }
+  selectedCard: null, // Card currently being edited in modal
+  selectedListId: null, // List ID of the selected card
   loading: false,
   error: null,
+
+  setSelectedCard: (card, listId) => set({ selectedCard: card, selectedListId: listId }),
 
   fetchBoard: async (boardId) => {
     set({ loading: true, error: null });
