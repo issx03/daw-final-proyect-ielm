@@ -8,6 +8,7 @@ from pydantic import BaseModel, EmailStr
 class UserBase(BaseModel):
     email: EmailStr
     username: str
+    avatar: str | None = None
 
 
 class UserCreate(UserBase):
@@ -20,6 +21,7 @@ class UserUpdate(BaseModel):
     password: str | None = None
     role: str | None = None
     is_active: bool | None = None
+    avatar: str | None = None
 
 
 class UserResponse(UserBase):

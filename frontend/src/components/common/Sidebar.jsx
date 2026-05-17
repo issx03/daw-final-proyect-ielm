@@ -118,8 +118,12 @@ const Sidebar = () => {
             to="/profile" 
             className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
           >
-            <div className="w-8 h-8 rounded-full bg-[#2A2A3A] flex items-center justify-center text-[11px] font-bold text-[#E8E8EF]">
-              {initials}
+            <div className="w-8 h-8 rounded-full bg-[#2A2A3A] flex items-center justify-center text-[11px] font-bold text-[#E8E8EF] overflow-hidden">
+              {user?.avatar ? (
+                <img src={user.avatar} alt={user.username} className="w-full h-full object-cover" />
+              ) : (
+                initials
+              )}
             </div>
             <div className="flex flex-col">
               <span className="text-[12px] font-medium text-[#E8E8EF] leading-tight">{user?.username || 'User'}</span>
