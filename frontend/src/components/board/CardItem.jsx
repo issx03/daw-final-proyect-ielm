@@ -25,8 +25,12 @@ export const CardItemContent = React.memo(React.forwardRef(
           </h4>
           
           <div className="flex items-center justify-end pt-2 border-t border-[#3A3A4A]">
-            <div className="w-5 h-5 rounded-full bg-[#4ECDC4] flex items-center justify-center text-[8px] font-bold text-[#1A1A24]">
-              {initials}
+            <div className="w-5 h-5 rounded-full bg-[#4ECDC4] flex items-center justify-center text-[8px] font-bold text-[#1A1A24] overflow-hidden">
+              {user?.avatar ? (
+                <img src={user.avatar} alt={user.username} className="w-full h-full object-cover" />
+              ) : (
+                initials
+              )}
             </div>
           </div>
         </div>

@@ -8,7 +8,8 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     username: user?.username || '',
     email: user?.email || '',
-    password: ''
+    password: '',
+    avatar: user?.avatar || ''
   });
   const [status, setStatus] = useState({ type: null, message: '' });
   const [loading, setLoading] = useState(false);
@@ -30,6 +31,7 @@ const Profile = () => {
       if (formData.username && formData.username !== user.username) updateData.username = formData.username;
       if (formData.email && formData.email !== user.email) updateData.email = formData.email;
       if (formData.password) updateData.password = formData.password;
+      if (formData.avatar !== user.avatar) updateData.avatar = formData.avatar;
 
       if (Object.keys(updateData).length === 0) {
         setStatus({ type: 'info', message: 'No changes detected.' });
@@ -56,8 +58,12 @@ const Profile = () => {
     <div className="max-w-2xl mx-auto pt-20 pb-20 px-8">
       {/* Header with avatar and name */}
       <div className="flex items-center gap-4 mb-8">
-        <div className="w-12 h-12 rounded-full bg-[#4ECDC4] flex items-center justify-center text-[14px] font-bold text-[#1A1A24]">
-          {initials}
+        <div className="w-12 h-12 rounded-full bg-[#4ECDC4] flex items-center justify-center text-[14px] font-bold text-[#1A1A24] overflow-hidden">
+          {user?.avatar ? (
+            <img src={user.avatar} alt={user?.username} className="w-full h-full object-cover" />
+          ) : (
+            initials
+          )}
         </div>
         <div>
           <h1 className="text-2xl font-semibold text-[#E8E8EF] tracking-tight">{user?.username}</h1>
@@ -105,6 +111,21 @@ const Profile = () => {
             onChange={handleChange}
             className="w-full bg-transparent border-none p-0 text-[15px] font-medium text-[#E8E8EF] outline-none placeholder:text-[#4B5563]"
             placeholder="you@example.com"
+          />
+        </div>
+
+        {/* Avatar URL */}
+        <div className="py-4 border-b border-[#2A2A3A]">
+          <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-2">
+            Avatar URL
+          </label>
+          <input
+            type="url"
+            name="avatar"
+            value={formData.avatar}
+            onChange={handleChange}
+            className="w-full bg-transparent border-none p-0 text-[15px] font-medium text-[#E8E8EF] outline-none placeholder:text-[#4B5563]"
+            placeholder="https://example.com/avatar.png"
           />
         </div>
 
