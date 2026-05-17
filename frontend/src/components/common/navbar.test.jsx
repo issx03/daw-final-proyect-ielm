@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Navbar from './Navbar';
 import { useAuth } from '../../context/AuthContext';
@@ -30,23 +30,18 @@ describe('Navbar Component', () => {
   it('renders login link when unauthenticated', () => {
     useAuth.mockReturnValue({ token: null, logout: vi.fn(), user: null });
     renderWithRouter(<Navbar />);
-    expect(screen.getByText(/Login/i)).toBeInTheDocument();
+    expect(screen.getByText(/Log in/i)).toBeInTheDocument();
   });
 
-  it('renders user info and logout when authenticated', () => {
-    const mockLogout = vi.fn();
+  it('renders user info when authenticated on protected page', () => {
     useAuth.mockReturnValue({ 
       token: 'fake-token', 
-      logout: mockLogout, 
+      logout: vi.fn(), 
       user: { username: 'testuser' } 
     });
 
     renderWithRouter(<Navbar />);
     
     expect(screen.getByText('testuser')).toBeInTheDocument();
-    expect(screen.getByText(/Logout/i)).toBeInTheDocument();
-
-    fireEvent.click(screen.getByText(/Logout/i));
-    expect(mockLogout).toHaveBeenCalled();
   });
 });

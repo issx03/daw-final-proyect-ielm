@@ -3,12 +3,12 @@ import { X, Check } from 'lucide-react';
 import boardService from '../../api/boardService';
 
 const COLORS = [
-  { name: 'Charcoal', value: '#2C2B29' },
-  { name: 'Slate', value: '#52504C' },
-  { name: 'Sage', value: '#7D8471' },
-  { name: 'Taupe', value: '#8C7D6B' },
-  { name: 'Sand', value: '#B4A697' },
-  { name: 'Terracotta', value: '#A67C6A' },
+  { name: 'Slate', value: '#64748B' },
+  { name: 'Blue', value: '#3B82F6' },
+  { name: 'Green', value: '#22C55E' },
+  { name: 'Orange', value: '#F97316' },
+  { name: 'Red', value: '#EF4444' },
+  { name: 'Purple', value: '#A855F7' },
 ];
 
 const CreateBoardModal = ({ isOpen, onClose, onBoardCreated }) => {
@@ -46,84 +46,84 @@ const CreateBoardModal = ({ isOpen, onClose, onBoardCreated }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/10 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0"
+        className="absolute inset-0 bg-[#0F0F13]/60 backdrop-blur-sm animate-in fade-in duration-200"
         onClick={onClose}
       />
       
       {/* Modal */}
-      <div className="relative bg-white w-full max-w-md rounded-[2rem] shadow-editorial p-10 animate-in fade-in zoom-in duration-300">
+      <div className="relative bg-[#252533] w-full max-w-md rounded-2xl shadow-[0_30px_70px_rgba(0,0,0,0.4)] p-10 animate-in fade-in zoom-in-95 duration-200 border border-[#2A2A3A]">
         <div className="flex justify-between items-center mb-10">
-          <h2 className="text-2xl font-serif text-slate-800">New Board</h2>
+          <div>
+            <h2 className="text-2xl font-bold text-[#E8E8EF] tracking-tight">New Board</h2>
+            <p className="text-[#6B7280] text-xs font-medium mt-1">Create a new workspace for your team.</p>
+          </div>
           <button 
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
+            className="p-2 text-[#6B7280] hover:text-[#E8E8EF] hover:bg-[#2A2A3A] rounded-xl transition-all"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-[11px] font-bold px-4 py-3 rounded-xl flex items-center gap-2">
+              <div className="w-1 h-1 rounded-full bg-red-400" />
+              {error}
+            </div>
+          )}
+
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 block ml-1">Title</label>
+            <label className="text-[10px] font-bold text-[#6B7280] uppercase tracking-[0.2em] ml-1">Board Title</label>
             <input 
               type="text"
               required
               autoFocus
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Redesign Project"
-              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-4 focus:outline-none focus:border-slate-300 transition-all text-slate-800"
+              placeholder="My new board"
+              className="w-full bg-[#1E1E28] border border-[#2A2A3A] rounded-xl px-4 py-3 text-sm font-medium text-[#E8E8EF] focus:ring-2 focus:ring-[#7C6BEF]/5 focus:border-[#7C6BEF]/40 outline-none transition-all placeholder:text-[#4B5563]"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 block ml-1">Description</label>
-            <textarea 
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="What is this space about?"
-              rows={3}
-              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-4 focus:outline-none focus:border-slate-300 transition-all resize-none text-slate-800"
-            />
-          </div>
-
-          <div className="space-y-4">
-            <label className="text-sm font-medium text-slate-700 block ml-1">Identity Color</label>
-            <div className="flex flex-wrap gap-4">
+            <label className="text-[10px] font-bold text-[#6B7280] uppercase tracking-[0.2em] ml-1">Identity Color</label>
+            <div className="flex flex-wrap gap-3">
               {COLORS.map((color) => (
                 <button
                   key={color.value}
                   type="button"
                   onClick={() => setSelectedColor(color.value)}
-                  className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
-                    selectedColor === color.value ? 'ring-2 ring-offset-4 ring-slate-900 scale-110 shadow-lg' : 'hover:scale-105 opacity-80'
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all relative ${
+                    selectedColor === color.value 
+                      ? 'ring-2 ring-white scale-110 shadow-lg' 
+                      : 'hover:scale-105 opacity-70 hover:opacity-100'
                   }`}
                   style={{ backgroundColor: color.value }}
                 >
-                  {selectedColor === color.value && <Check size={20} className="text-white" />}
+                  {selectedColor === color.value && <Check size={14} className="text-white" />}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="pt-6 flex gap-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-3 text-slate-500 font-medium hover:text-slate-700 transition-colors"
-            >
-              Cancel
-            </button>
+          <div className="pt-4 flex flex-col gap-3">
             <button
               type="submit"
               disabled={loading || !title.trim()}
-              className="bg-slate-900 text-white px-8 py-3 rounded-xl font-medium shadow-soft hover:bg-slate-800 transition-all disabled:opacity-50"
+              className="w-full py-4 bg-[#7C6BEF] text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#9B8AF7] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
             >
               {loading ? 'Creating...' : 'Create Board'}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full py-3 text-[11px] font-bold text-[#6B7280] hover:text-[#E8E8EF] transition-colors uppercase tracking-widest"
+            >
+              Cancel
             </button>
           </div>
         </form>

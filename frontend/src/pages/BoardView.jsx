@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Plus, X, ChevronLeft } from 'lucide-react';
 import {
   DndContext,
   closestCorners,
@@ -14,23 +15,50 @@ import useBoardStore from '../store/boardStore';
 import ListCard from '../components/board/ListCard';
 import { CardItemContent } from '../components/board/CardItem';
 import CardModal from '../components/board/CardModal';
+import ConfirmModal from '../components/common/ConfirmModal';
 import DnDErrorBoundary from '../components/common/DnDErrorBoundary';
+
 
 const isTouchDevice = typeof window !== 'undefined' &&
   ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
 const BoardView = () => {
   const { id } = useParams();
-  const { board, lists, fetchBoard, loading, error, createList, moveCardOptimistic, moveCardBackend, findCardContainer } = useBoardStore();
+  const navigate = useNavigate();
+  const board = useBoardStore(state => state.board);
+  const lists = useBoardStore(state => state.lists);
+  const loading = useBoardStore(state => state.loading);
+  const error = useBoardStore(state => state.error);
+  const fetchBoard = useBoardStore(state => state.fetchBoard);
+  const createList = useBoardStore(state => state.createList);
+  const moveCardOptimistic = useBoardStore(state => state.moveCardOptimistic);
+  const moveCardBackend = useBoardStore(state => state.moveCardBackend);
+  const findCardContainer = useBoardStore(state => state.findCardContainer);
+  const deleteBoard = useBoardStore(state => state.deleteBoard);
+  const selectedCard = useBoardStore(state => state.selectedCard);
+  const selectedListId = useBoardStore(state => state.selectedListId);
+  const setSelectedCard = useBoardStore(state => state.setSelectedCard);
+  
+  const [activeDragCard, setActiveDragCard] = useState(null);
   const [newListTitle, setNewListTitle] = useState('');
   const [isCreatingList, setIsCreatingList] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null);
-  const [activeCard, setActiveCard] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const createListRef = useRef(null);
 
   useEffect(() => {
-    if (id) {
-      fetchBoard(id);
-    }
+    if (!isCreatingList) return;
+    const handleClickOutside = (e) => {
+      if (createListRef.current && !createListRef.current.contains(e.target)) {
+        setIsCreatingList(false);
+        setNewListTitle('');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isCreatingList]);
+
+  useEffect(() => {
+    if (id) fetchBoard(id);
   }, [id, fetchBoard]);
 
   const sensors = useSensors(
@@ -46,20 +74,15 @@ const BoardView = () => {
   );
 
   const handleCreateList = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!newListTitle.trim()) return;
-    
     await createList(id, newListTitle);
     setNewListTitle('');
     setIsCreatingList(false);
   };
 
-  const handleCardClick = (cardId, listId) => {
-    setSelectedCard({ cardId, listId });
-  };
-
   const handleCloseCardModal = () => {
-    setSelectedCard(null);
+    setSelectedCard(null, null);
   };
 
   const handleDragStart = ({ active }) => {
@@ -67,19 +90,20 @@ const BoardView = () => {
     if (container) {
       const cardId = String(active.id).replace('card-', '');
       const card = useBoardStore.getState().cards[container]?.find(c => String(c.id) === cardId);
-      if (card) setActiveCard(card);
+      if (card) setActiveDragCard(card);
     }
   };
 
   const handleDragOver = ({ active, over }) => {
     if (!active || !over || active.id === over.id) return;
+    // CRITICAL: setTimeout evita el Maximum update depth exceeded de dnd-kit (issue #1678)
     setTimeout(() => {
       moveCardOptimistic(active.id, over.id);
     }, 0);
   };
 
   const handleDragEnd = async ({ active, over }) => {
-    setActiveCard(null);
+    setActiveDragCard(null);
     if (!over) return;
 
     const container = findCardContainer(over.id);
@@ -95,35 +119,74 @@ const BoardView = () => {
   };
 
   const handleDragCancel = () => {
-    setActiveCard(null);
+    setActiveDragCard(null);
+  };
+
+  const handleDeleteBoard = async () => {
+    await deleteBoard(id);
+    navigate('/dashboard');
   };
 
   if (loading) return (
-    <div className="flex h-64 items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-900 border-t-transparent"></div>
+    <div className="flex h-full items-center justify-center board-bg">
+      <div className="flex flex-col items-center gap-3">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#2A2A3A] border-t-[#7C6BEF]" />
+        <p className="text-[11px] font-medium text-[#6B7280]">Loading board...</p>
+      </div>
     </div>
   );
-  
+
   if (error) return (
-    <div className="p-6 text-center text-red-500 bg-red-50 rounded-xl border border-red-200">
-      <h3 className="font-semibold mb-2">Error loading board</h3>
-      <p>{error}</p>
+    <div className="flex h-full items-center justify-center board-bg px-6 text-center">
+      <div className="max-w-sm">
+        <h2 className="text-lg font-semibold text-[#E8E8EF] mb-2">Access Denied</h2>
+        <p className="text-[13px] text-[#8B8B9A] mb-6 leading-relaxed">{error}</p>
+        <button 
+          onClick={() => navigate('/dashboard')}
+          className="px-6 py-2.5 bg-[#7C6BEF] text-white rounded-lg font-medium text-[13px] hover:bg-[#9B8AF7] transition-all"
+        >
+          Return to Hub
+        </button>
+      </div>
     </div>
   );
-  
+
   if (!board) return null;
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">{board.title}</h1>
-        {board.description && (
-          <p className="mt-2 text-slate-600 max-w-2xl">{board.description}</p>
-        )}
-      </div>
+    <div className="h-full flex flex-col board-bg overflow-hidden relative">
+      {/* ── Board Header ── */}
+      <header className="h-16 flex-shrink-0 bg-[#1A1A24] border-b border-[#2A2A3A] px-8 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="p-2 text-[#6B7280] hover:text-[#E8E8EF] hover:bg-[#2A2A3A] rounded-lg transition-all"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <div className="h-6 w-px bg-[#2A2A3A]" />
+          <div className="flex items-center gap-3">
+            <div 
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: board.color }}
+            />
+            <h1 className="text-xl font-semibold text-[#E8E8EF] tracking-tight">
+              {board.title}
+            </h1>
+          </div>
+        </div>
+        
+        <button
+          onClick={() => setShowDeleteConfirm(true)}
+          className="px-4 py-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg text-[13px] font-medium transition-all"
+        >
+          Delete Board
+        </button>
+      </header>
 
-      <div className="flex-1 overflow-x-auto pb-4 custom-scrollbar">
-        <div className="flex items-start gap-6 h-full px-1">
+      {/* ── Lists Area ── */}
+      <main className="flex-1 overflow-x-auto overflow-y-hidden p-8">
+        <div className="flex items-start gap-5 h-full min-w-max">
           <DnDErrorBoundary>
             <DndContext
               sensors={sensors}
@@ -134,67 +197,75 @@ const BoardView = () => {
               onDragCancel={handleDragCancel}
             >
               {lists.map(list => (
-                <ListCard key={list.id} list={list} onCardClick={handleCardClick} />
+                <ListCard key={list.id} list={list} />
               ))}
               <DragOverlay>
-                {activeCard ? (
-                  <CardItemContent card={activeCard} isOverlay />
+                {activeDragCard ? (
+                  <CardItemContent card={activeDragCard} isOverlay />
                 ) : null}
               </DragOverlay>
             </DndContext>
           </DnDErrorBoundary>
 
-          {/* Create List Button / Form */}
-          <div className="w-80 shrink-0">
-            {!isCreatingList ? (
-              <button
-                onClick={() => setIsCreatingList(true)}
-                className="w-full py-3 px-4 rounded-xl border-2 border-dashed border-slate-300 text-slate-500 hover:border-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all font-medium flex items-center justify-center gap-2"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-                Add another list
-              </button>
-            ) : (
-              <form onSubmit={handleCreateList} className="bg-slate-100 p-3 rounded-xl border border-slate-200 shadow-sm">
+          {/* Add another list */}
+          <div className="reveal-item">
+            {isCreatingList ? (
+              <div ref={createListRef} className="w-80 flex-shrink-0 bg-[#252533] rounded-2xl p-5 border border-[#2A2A3A] animate-in fade-in zoom-in-95 duration-200">
                 <input
+                  autoFocus
                   type="text"
+                  placeholder="List name..."
+                  className="w-full bg-[#1E1E28] border border-[#2A2A3A] focus:border-[#7C6BEF]/50 rounded-xl px-4 py-3 text-[14px] font-semibold text-[#E8E8EF] transition-all outline-none mb-4 placeholder:text-[#4B5563]"
                   value={newListTitle}
                   onChange={(e) => setNewListTitle(e.target.value)}
-                  placeholder="Enter list title..."
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent text-sm mb-3"
-                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleCreateList();
+                    if (e.key === 'Escape') { setIsCreatingList(false); setNewListTitle(''); }
+                  }}
                 />
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <button
-                    type="submit"
-                    className="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors"
+                    onClick={handleCreateList}
+                    className="bg-[#7C6BEF] text-white flex-1 text-[12px] font-semibold py-2.5 rounded-xl hover:bg-[#9B8AF7] transition-all active:scale-95"
                   >
-                    Add list
+                    Add List
                   </button>
                   <button
-                    type="button"
-                    onClick={() => {
-                      setIsCreatingList(false);
-                      setNewListTitle('');
-                    }}
-                    className="p-2 text-slate-500 hover:bg-slate-200 hover:text-slate-700 rounded-lg transition-colors"
+                    onClick={() => { setIsCreatingList(false); setNewListTitle(''); }}
+                    className="p-2.5 text-[#6B7280] hover:text-[#E8E8EF] hover:bg-[#2A2A3A] rounded-xl transition-all"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    <X size={18} />
                   </button>
                 </div>
-              </form>
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsCreatingList(true)}
+                className="w-80 flex-shrink-0 h-12 bg-[#252533] hover:bg-[#2E2E40] border border-[#2A2A3A] hover:border-[#3A3A4A] rounded-xl flex items-center justify-center gap-2 px-6 text-[11px] font-semibold text-[#8B8B9A] hover:text-[#E8E8EF] uppercase tracking-wider transition-all duration-200 group"
+              >
+                <Plus size={14} className="transition-transform group-hover:rotate-90" />
+                Add List
+              </button>
             )}
           </div>
         </div>
-      </div>
+      </main>
 
-      {selectedCard && (
-        <CardModal
-          cardId={selectedCard.cardId}
-          listId={selectedCard.listId}
-          onClose={handleCloseCardModal}
-        />
-      )}
+      <CardModal
+        card={selectedCard}
+        listId={selectedListId}
+        isOpen={!!selectedCard}
+        onClose={handleCloseCardModal}
+      />
+
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title="Delete board?"
+        message={`"${board.title}" and all its lists will be permanently deleted.`}
+        confirmText="Delete"
+        onConfirm={handleDeleteBoard}
+        onClose={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 };

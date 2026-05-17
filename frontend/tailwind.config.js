@@ -10,22 +10,27 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#FAF9F6', // Off-white/Ivory
+        background: '#FFFFFF', // Clean White Background
         surface: {
-          lowest: '#FFFFFF',
-          low: '#F3F2EE',
-          base: '#EBE9E1',
+          lowest: '#F8FAFC', // Slate 50
+          low: '#F1F5F9',    // Slate 100
+          base: '#FFFFFF',
+          elevated: '#FFFFFF',
         },
         primary: {
-          DEFAULT: '#2C2B29', // Soft Charcoal
-          foreground: '#FAF9F6',
+          DEFAULT: '#0F172A', // Slate 900 (Main Text)
+          foreground: '#FFFFFF',
         },
         secondary: {
-          DEFAULT: '#52504C', // Slate Grey
-          foreground: '#FAF9F6',
+          DEFAULT: '#64748B', // Slate 500 (Muted Text)
+          foreground: '#0F172A',
         },
-        accent: '#8C7D6B', // Muted Taupe
-        border: '#E2E0D6',
+        accent: {
+          DEFAULT: '#334155', // Slate 700 (Executive Accent)
+          hover: '#1e293b',   // Slate 800
+          slate: '#0F172A',
+        },
+        border: '#E2E8F0',    // Slate 200
       },
       borderRadius: {
         'xl': '1rem',
@@ -33,7 +38,6 @@ export default {
       },
       boxShadow: {
         'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
-        'editorial': '0 10px 30px -5px rgba(0, 0, 0, 0.08)',
       }
     },
   },
