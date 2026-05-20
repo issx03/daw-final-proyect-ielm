@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import BoardView from './pages/BoardView';
 import Profile from './pages/Profile';
 import Landing from './pages/Landing';
+import Admin from './pages/Admin';
 import { AuthProvider } from './context/AuthContext';
 import Sidebar from './components/common/Sidebar';
 import { useAuth } from './context/AuthContext';
@@ -38,6 +39,12 @@ const ProtectedLayout = () => {
   );
 };
 
+const AdminRoute = () => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  return user?.role === 'admin' ? <Outlet /> : <Navigate to="/dashboard" replace />;
+};
+
 const App = () => {
   return (
     <AuthProvider>
@@ -52,6 +59,9 @@ const App = () => {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/boards/:id" element={<BoardView />} />
+              <Route element={<AdminRoute />}>
+                <Route path="/admin" element={<Admin />} />
+              </Route>
             </Route>
           </Routes>
         </div>

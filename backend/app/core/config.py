@@ -24,6 +24,11 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
+    # Default admin seed (created on startup if no admin exists)
+    ADMIN_USERNAME: str = "admin"
+    ADMIN_EMAIL: str = "admin@trellix.dev"
+    ADMIN_PASSWORD: str = "admin1234"
+
     @property
     def DATABASE_URL(self) -> str:
         return f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"

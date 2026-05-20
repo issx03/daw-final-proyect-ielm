@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Layout, User, Loader2, LogOut } from 'lucide-react';
+import { Layout, User, Loader2, LogOut, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import boardService from '../../api/boardService';
 import WeatherWidget from './WeatherWidget';
@@ -35,6 +35,9 @@ const Sidebar = () => {
   const mainMenuItems = [
     { icon: Layout, label: 'Dashboard', path: '/dashboard' },
     { icon: User, label: 'Profile', path: '/profile' },
+    ...(user?.role === 'admin'
+      ? [{ icon: ShieldAlert, label: 'Admin Panel', path: '/admin' }]
+      : []),
   ];
 
   const initials = user?.username?.slice(0, 2).toUpperCase() || 'U';
