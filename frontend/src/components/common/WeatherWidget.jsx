@@ -68,7 +68,7 @@ const WeatherWidget = () => {
         }
       } catch (err) {
         if (active) {
-          setError('Clima no disponible');
+          setError('Weather unavailable');
         }
       } finally {
         if (active) {
@@ -109,7 +109,7 @@ const WeatherWidget = () => {
       const geoData = await geoRes.json();
 
       if (!geoData.results || geoData.results.length === 0) {
-        throw new Error(`Ciudad "${searchQuery}" no encontrada`);
+        throw new Error(`City "${searchQuery}" not found`);
       }
 
       const result = geoData.results[0];
@@ -125,7 +125,7 @@ const WeatherWidget = () => {
       setSearchQuery('');
       setIsOpen(false);
     } catch (err) {
-      setSearchError(err.message || 'Error al buscar ciudad');
+      setSearchError(err.message || 'Error searching city');
     } finally {
       setLoading(false);
     }
@@ -154,7 +154,7 @@ const WeatherWidget = () => {
               {location.name}
             </span>
             <span className="text-[10px] text-[#6B7280] truncate leading-none mt-0.5">
-              {loading ? 'Cargando...' : weatherDetails?.label || 'Clima'}
+              {loading ? 'Loading...' : weatherDetails?.label || 'Weather'}
             </span>
           </div>
         </div>
@@ -190,7 +190,7 @@ const WeatherWidget = () => {
           <form onSubmit={handleSearchSubmit} className="relative mb-2.5">
             <input
               type="text"
-              placeholder="Buscar ciudad..."
+              placeholder="Search city..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-[#1E1E28] border border-[#2A2A3A] focus:border-[#7C6BEF]/50 rounded-xl pl-8 pr-12 py-1.5 text-[11px] font-semibold text-[#E8E8EF] transition-all outline-none placeholder:text-[#4B5563]"
@@ -202,7 +202,7 @@ const WeatherWidget = () => {
               disabled={loading}
               className="absolute right-1 top-1 px-2 py-0.5 bg-[#7C6BEF] text-white text-[9px] font-bold rounded hover:bg-[#9B8AF7] transition-all"
             >
-              Ir
+              Go
             </button>
           </form>
 
@@ -233,7 +233,7 @@ const WeatherWidget = () => {
           ) : (
             <div className="flex flex-col items-center justify-center py-4">
               <Loader2 size={20} className="text-[#7C6BEF] animate-spin mb-1.5" />
-              <p className="text-[10px] text-[#6B7280]">Cargando clima...</p>
+              <p className="text-[10px] text-[#6B7280]">Loading weather...</p>
             </div>
           )}
         </div>
