@@ -20,11 +20,26 @@ export const CardItemContent = React.memo(React.forwardRef(
         {...props}
       >
         <div className="flex flex-col gap-2">
+          {card.labels && card.labels.length > 0 && (
+            <div className="flex flex-wrap gap-1 mb-1">
+              {card.labels.map((label, idx) => (
+                <span key={idx} className="px-2 py-0.5 bg-[#3A3A4A] text-[#9CA3AF] text-[10px] font-semibold rounded-md tracking-wider">
+                  {label}
+                </span>
+              ))}
+            </div>
+          )}
           <h4 className="text-[13px] font-semibold text-[#E8E8EF] leading-snug tracking-tight">
             {card.title}
           </h4>
           
-          <div className="flex items-center justify-end pt-2 border-t border-[#3A3A4A]">
+          <div className="flex items-center justify-between pt-2 border-t border-[#3A3A4A]">
+            <div className="flex items-center gap-2">
+              {/* Priority Indicator */}
+              {card.priority === 'high' && <div className="w-2 h-2 rounded-full bg-red-500" title="High Priority" />}
+              {card.priority === 'medium' && <div className="w-2 h-2 rounded-full bg-yellow-500" title="Medium Priority" />}
+              {card.priority === 'low' && <div className="w-2 h-2 rounded-full bg-blue-500" title="Low Priority" />}
+            </div>
             <div className="w-5 h-5 rounded-full bg-[#4ECDC4] flex items-center justify-center text-[8px] font-bold text-[#1A1A24] overflow-hidden">
               {user?.avatar ? (
                 <img src={user.avatar} alt={user.username} className="w-full h-full object-cover" />
