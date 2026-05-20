@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Layout, User, Plus, Loader2, LogOut } from 'lucide-react';
+import { Layout, User, Loader2, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import boardService from '../../api/boardService';
+import WeatherWidget from './WeatherWidget';
 
 
 const Sidebar = () => {
@@ -110,6 +111,9 @@ const Sidebar = () => {
           )}
         </div>
       </div>
+
+      {/* Weather Widget */}
+      <WeatherWidget />
 
       {/* Bottom: User Info — clickable to profile */}
       <div className="px-4 py-4 border-t border-[#2A2A3A]">
