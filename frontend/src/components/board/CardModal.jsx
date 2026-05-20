@@ -9,6 +9,8 @@ const CardModal = ({ card, listId, isOpen, onClose }) => {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [priority, setPriority] = useState('medium');
+  const [labels, setLabels] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -16,6 +18,8 @@ const CardModal = ({ card, listId, isOpen, onClose }) => {
     if (card) {
       setTitle(card.title || '');
       setDescription(card.description || '');
+      setPriority(card.priority || 'medium');
+      setLabels(card.labels ? card.labels.join(', ') : '');
     }
   }, [card]);
 
@@ -35,7 +39,13 @@ const CardModal = ({ card, listId, isOpen, onClose }) => {
     if (!title.trim()) return;
     setIsSaving(true);
     try {
-      await updateCard(card.id, { title, description });
+      const labelsArray = labels.split(',').map(l => l.trim()).filter(l => l !== '');
+      await updateCard(card.id, { 
+        title, 
+        description,
+        priority,
+        labels: labelsArray
+      });
       onClose();
     } catch (error) {
       console.error('Failed to update card:', error);
@@ -106,8 +116,38 @@ const CardModal = ({ card, listId, isOpen, onClose }) => {
               </div>
             </div>
 
-            {/* Sidebar Actions */}
-            <div className="space-y-4 pt-1">
+            {/* Sidebar Actions / Properties */}
+            <div className="space-y-6 pt-1">
+              <div>
+                <h4 className="text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-3">Properties</h4>
+                
+                {/* Priority */}
+                <div className="mb-4">
+                  <label className="block text-[11px] font-semibold text-[#8B8B9A] mb-1.5">Priority</label>
+                  <select 
+                    value={priority}
+                    onChange={(e) => setPriority(e.target.value)}
+                    className="w-full bg-[#1E1E28] border border-[#2A2A3A] hover:border-[#3A3A4A] rounded-lg px-3 py-2 text-sm text-[#E8E8EF] outline-none focus:border-[#7C6BEF]/50 transition-all"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+
+                {/* Labels */}
+                <div className="mb-4">
+                  <label className="block text-[11px] font-semibold text-[#8B8B9A] mb-1.5">Labels (comma separated)</label>
+                  <input 
+                    type="text"
+                    value={labels}
+                    onChange={(e) => setLabels(e.target.value)}
+                    placeholder="bug, feature, ui"
+                    className="w-full bg-[#1E1E28] border border-[#2A2A3A] hover:border-[#3A3A4A] rounded-lg px-3 py-2 text-sm text-[#E8E8EF] outline-none focus:border-[#7C6BEF]/50 transition-all placeholder:text-[#4B5563]"
+                  />
+                </div>
+              </div>
+
               <div>
                 <h4 className="text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-3">Actions</h4>
                 <button
