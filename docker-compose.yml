@@ -1,3 +1,4 @@
+# x- prefix defines custom extension field. &backend-config defines YAML anchor (config template)
 x-backend-config: &backend-config
   build:
     context: ./backend
@@ -28,6 +29,7 @@ services:
       - frontend
 
   backend1:
+    # << merges all fields from template anchor (* references alias)
     <<: *backend-config
 
   backend2:
