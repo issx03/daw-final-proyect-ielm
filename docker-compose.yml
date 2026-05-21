@@ -1,3 +1,19 @@
+x-backend-config: &backend-config
+  build:
+    context: ./backend
+    dockerfile: Dockerfile
+  environment:
+    - DB_HOST=mariadb
+    - DB_PORT=3306
+    - DB_USER=trellix
+    - DB_PASSWORD=trellix
+    - DB_NAME=trellix
+  depends_on:
+    - mariadb
+  volumes:
+    - ./backend:/app
+  command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
 services:
   nginx:
     image: nginx:alpine
@@ -12,52 +28,13 @@ services:
       - frontend
 
   backend1:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    environment:
-      - DB_HOST=mariadb
-      - DB_PORT=3306
-      - DB_USER=trellix
-      - DB_PASSWORD=trellix
-      - DB_NAME=trellix
-    depends_on:
-      - mariadb
-    volumes:
-      - ./backend:/app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    <<: *backend-config
 
   backend2:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    environment:
-      - DB_HOST=mariadb
-      - DB_PORT=3306
-      - DB_USER=trellix
-      - DB_PASSWORD=trellix
-      - DB_NAME=trellix
-    depends_on:
-      - mariadb
-    volumes:
-      - ./backend:/app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    <<: *backend-config
 
   backend3:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    environment:
-      - DB_HOST=mariadb
-      - DB_PORT=3306
-      - DB_USER=trellix
-      - DB_PASSWORD=trellix
-      - DB_NAME=trellix
-    depends_on:
-      - mariadb
-    volumes:
-      - ./backend:/app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    <<: *backend-config
 
   mariadb:
     image: mariadb:10.5
