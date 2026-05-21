@@ -33,6 +33,13 @@ const CardModal = ({ card, listId, isOpen, onClose }) => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
+  // Reset delete confirmation when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setShowDeleteConfirm(false);
+    }
+  }, [isOpen]);
+
   if (!isOpen || !card) return null;
 
   const handleSave = async () => {

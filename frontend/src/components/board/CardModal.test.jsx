@@ -64,7 +64,12 @@ describe('CardModal', () => {
     
     fireEvent.click(screen.getByText('Save Changes'));
     
-    expect(mockUpdateCard).toHaveBeenCalledWith(1, { title: 'Test Card', description: 'Test Description' });
+    expect(mockUpdateCard).toHaveBeenCalledWith(1, { 
+      title: 'Test Card', 
+      description: 'Test Description',
+      priority: 'medium',
+      labels: []
+    });
   });
 
   it('shows delete confirmation when clicking delete', () => {
@@ -86,5 +91,25 @@ describe('CardModal', () => {
     // The confirm modal should now be open
     expect(screen.getByText('Delete card?')).toBeInTheDocument();
     expect(screen.getByText(/Test Card.*will be permanently deleted/)).toBeInTheDocument();
+  });
+
+  it('resets delete confirmation when modal is closed', () => {
+    const { rerender } = render(<CardModal card={mockCard} listId={1} isOpen={true} onClose={mockOnClose} />);
+    
+    // Click delete button to open confirm modal
+    const deleteButton = screen.getByText((content, element) => {
+      return content === 'Delete' && element.tagName.toLowerCase() === 'button';
+    });
+    fireEvent.click(deleteButton);
+    expect(screen.getByText('Delete card?')).toBeInTheDocument();
+    
+    // Close the modal
+    rerender(<CardModal card={mockCard} listId={1} isOpen={false} onClose={mockOnClose} />);
+    
+    // Re-open the modal
+    rerender(<CardModal card={mockCard} listId={1} isOpen={true} onClose={mockOnClose} />);
+    
+    // The confirm modal should be closed now
+    expect(screen.queryByText('Delete card?')).not.toBeInTheDocument();
   });
 });
