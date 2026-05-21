@@ -45,7 +45,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         raise UnauthorizedException(message="Incorrect username, email or password")
     
     if not user.is_active:
-        raise BadRequestException(message="Inactive user")
+        raise BadRequestException(message="Your account has been blocked. Please contact support.")
     
     access_token = create_access_token(data={"user_id": user.id, "role": user.role})
     return {"access_token": access_token, "token_type": "bearer"}

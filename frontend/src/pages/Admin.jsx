@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Trash2, Ban, CheckCircle, Loader2, ShieldAlert } from 'lucide-react';
 import adminService from '../api/adminService';
 import { useAuth } from '../context/AuthContext';
+import ConfirmModal from '../components/common/ConfirmModal';
 
 const Admin = () => {
   const { user: currentUser } = useAuth();
@@ -9,6 +10,7 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [error, setError] = useState(null);
+  const [confirm, setConfirm] = useState(null); // { type: 'delete'|'block'|'unblock', user }
 
   useEffect(() => {
     adminService
@@ -18,7 +20,7 @@ const Admin = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleBlock = async (u) => {
+  const executeBlock = async (u) => {
     setActionLoading(u.id);
     try {
       const updated = await (u.is_active
@@ -32,7 +34,7 @@ const Admin = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const executeDelete = async (id) => {
     setActionLoading(id);
     try {
       await adminService.deleteUser(id);
@@ -43,6 +45,34 @@ const Admin = () => {
       setActionLoading(null);
     }
   };
+
+  const handleConfirm = () => {
+    if (!confirm) return;
+    if (confirm.type === 'delete') executeDelete(confirm.user.id);
+    else executeBlock(confirm.user);
+    setConfirm(null);
+  };
+
+  const confirmConfig = confirm && {
+    delete: {
+      title: 'Delete user?',
+      message: `"${confirm.user.username}" will be permanently removed.`,
+      confirmText: 'Delete',
+      variant: 'danger',
+    },
+    block: {
+      title: 'Block user?',
+      message: `"${confirm.user.username}" won't be able to log in.`,
+      confirmText: 'Block',
+      variant: 'danger',
+    },
+    unblock: {
+      title: 'Unblock user?',
+      message: `"${confirm.user.username}" will regain access to their account.`,
+      confirmText: 'Unblock',
+      variant: 'primary',
+    },
+  }[confirm.type];
 
   if (loading) {
     return (
@@ -144,18 +174,19 @@ const Admin = () => {
                     !isSelf && (
                       <>
                         <button
-                          onClick={() => handleBlock(u)}
+                          onClick={() =>
+                            setConfirm({
+                              type: u.is_active ? 'block' : 'unblock',
+                              user: u,
+                            })
+                          }
                           title={u.is_active ? 'Block user' : 'Unblock user'}
                           className="p-1.5 rounded-lg text-[#6B7280] hover:text-amber-400 hover:bg-amber-400/10 transition-all"
                         >
-                          {u.is_active ? (
-                            <Ban size={14} />
-                          ) : (
-                            <CheckCircle size={14} />
-                          )}
+                          {u.is_active ? <Ban size={14} /> : <CheckCircle size={14} />}
                         </button>
                         <button
-                          onClick={() => handleDelete(u.id)}
+                          onClick={() => setConfirm({ type: 'delete', user: u })}
                           title="Delete user"
                           className="p-1.5 rounded-lg text-[#6B7280] hover:text-red-400 hover:bg-red-400/10 transition-all"
                         >
@@ -170,6 +201,19 @@ const Admin = () => {
           })
         )}
       </div>
+
+      {/* Confirmation modal */}
+      {confirm && confirmConfig && (
+        <ConfirmModal
+          isOpen
+          title={confirmConfig.title}
+          message={confirmConfig.message}
+          confirmText={confirmConfig.confirmText}
+          variant={confirmConfig.variant}
+          onConfirm={handleConfirm}
+          onClose={() => setConfirm(null)}
+        />
+      )}
     </div>
   );
 };

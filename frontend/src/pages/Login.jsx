@@ -23,8 +23,9 @@ const Login = () => {
       navigate('/dashboard');
     } catch (err) {
       console.error('Login error:', err);
-      const detail = err.response?.data?.detail;
-      setError(typeof detail === 'string' ? detail : 'Invalid credentials or server error. Access denied.');
+      // custom exceptions return 'message'; FastAPI validation errors return 'detail'
+      const msg = err.response?.data?.message || err.response?.data?.detail;
+      setError(typeof msg === 'string' && msg ? msg : 'Invalid credentials or server error. Access denied.');
     } finally {
       setLoading(false);
     }
