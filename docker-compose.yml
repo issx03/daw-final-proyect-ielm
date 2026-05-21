@@ -6,10 +6,44 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
-      - backend
+      - backend1
+      - backend2
+      - backend3
       - frontend
 
-  backend:
+  backend1:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_USER=trellix
+      - DB_PASSWORD=trellix
+      - DB_NAME=trellix
+    depends_on:
+      - mariadb
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  backend2:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_USER=trellix
+      - DB_PASSWORD=trellix
+      - DB_NAME=trellix
+    depends_on:
+      - mariadb
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  backend3:
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -51,7 +85,9 @@ services:
       #   2. git commit
       #   3. docker compose rm -f frontend && docker compose up -d --build frontend
     depends_on:
-      - backend
+      - backend1
+      - backend2
+      - backend3
 
 volumes:
   mariadb_data:
