@@ -1,10 +1,11 @@
 """
 Database Initialization Script
-Waits for the database to be ready, then creates tables and seeds the default admin.
+Waits for the database to be ready, runs Alembic migrations, and seeds the default admin.
 """
 
 import logging
 import time
+import os
 from sqlalchemy.exc import OperationalError
 from app.db.session import engine, init_db
 
@@ -33,12 +34,28 @@ def wait_for_db():
     logger.error("Could not connect to the database. Max retries exceeded.")
     return False
 
+def run_migrations():
+    """Run programmatic Alembic migrations up to head."""
+    logger.info("Running database migrations...")
+    from alembic.config import Config
+    from alembic import command
+    
+    # Resolve the absolute path of alembic.ini relative to this file's location
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    alembic_ini_path = os.path.join(base_dir, "alembic.ini")
+    
+    # Load Alembic configuration and run upgrade
+    alembic_cfg = Config(alembic_ini_path)
+    command.upgrade(alembic_cfg, "head")
+    logger.info("Database migrations completed successfully.")
+
 def main():
     if not wait_for_db():
         raise SystemExit(1)
     
-    logger.info("Initializing database tables and seed data...")
     try:
+        run_migrations()
+        logger.info("Initializing database seed data...")
         init_db()
         logger.info("Database successfully initialized.")
     except Exception as e:
