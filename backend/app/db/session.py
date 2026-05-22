@@ -31,8 +31,6 @@ def init_db():
     from app.models.list import List  # noqa: F401
     from app.models.card import Card  # noqa: F401
     
-    Base.metadata.create_all(bind=engine)
-    
     # Seed admin user if no admin exists
     from app.core.config import settings
     from app.core.security import get_password_hash
