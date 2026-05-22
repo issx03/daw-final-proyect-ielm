@@ -10,7 +10,10 @@ x-backend-config: &backend-config
     - DB_PASSWORD=trellix
     - DB_NAME=trellix
   depends_on:
-    - mariadb
+    mariadb:
+      condition: service_started
+    db-init:
+      condition: service_completed_successfully
   volumes:
     - ./backend:/app
   command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
@@ -38,6 +41,12 @@ services:
   backend3:
     <<: *backend-config
 
+  db-init:
+    <<: *backend-config
+    command: python -m app.db_init
+    depends_on:
+      - mariadb
+
   mariadb:
     image: mariadb:10.5
     ports:
@@ -58,11 +67,6 @@ services:
       - VITE_API_URL=http://localhost/api/v1
     volumes:
       - ./frontend:/app
-      # node_modules lives ONLY in the Docker image.
-      # To add packages:
-      #   1. npm install locally (updates package.json + package-lock.json)
-      #   2. git commit
-      #   3. docker compose rm -f frontend && docker compose up -d --build frontend
     depends_on:
       - backend1
       - backend2

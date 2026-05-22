@@ -102,11 +102,8 @@ def create_app() -> FastAPI:
     def health_check():
         return {"status": "healthy"}
 
-    # Initialize database tables on startup
-    from app.db.session import init_db
-    init_db()
-
     return app
+
 
 
 app = create_app()
