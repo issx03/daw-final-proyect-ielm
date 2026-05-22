@@ -24,6 +24,18 @@ class UserUpdate(BaseModel):
     avatar: str | None = None
 
 
+class UserMeUpdate(BaseModel):
+    """
+    Schema for updating the current user's own profile.
+    Excludes administrative fields (role, is_active) to prevent privilege escalation.
+    """
+    email: EmailStr | None = None
+    username: str | None = None
+    password: str | None = None
+    avatar: str | None = None
+
+
+
 class UserResponse(UserBase):
     id: int
     role: str
