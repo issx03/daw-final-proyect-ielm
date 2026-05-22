@@ -57,3 +57,26 @@ def test_delete_me(client, auth_headers, db_session):
     # Verify user is gone
     response = client.get("/api/v1/auth/me", headers=auth_headers)
     assert response.status_code == 404
+
+
+def test_update_me_ignores_admin_fields(client, auth_headers, db_session):
+    """
+    Ensure that attempts to update administrative fields (role, is_active)
+    via PATCH /me are ignored/discarded by the schema.
+    """
+    response = client.patch(
+        "/api/v1/auth/me",
+        headers=auth_headers,
+        json={"role": "admin", "is_active": False}
+    )
+    assert response.status_code == 200
+    
+    # Verify sensitive fields were not modified
+    assert response.json()["role"] != "admin"
+    assert response.json()["is_active"] is True
+    
+    # Verify the database state directly
+    user = db_session.query(User).filter(User.username == "testuser").first()
+    assert user.role != "admin"
+    assert user.is_active is True
+

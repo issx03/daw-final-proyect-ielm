@@ -13,7 +13,7 @@ from app.core.security import (
     create_access_token,
     get_current_user_id,
 )
-from app.schemas.user import UserCreate, UserResponse, UserUpdate
+from app.schemas.user import UserCreate, UserResponse, UserUpdate, UserMeUpdate
 from app.schemas.token import Token
 from app.models.user import User
 from app.core.exceptions import (
@@ -81,7 +81,7 @@ def get_me(user: User = Depends(get_current_active_user)):
 
 @router.patch("/me", response_model=UserResponse)
 def update_me(
-    user_update: UserUpdate,
+    user_update: UserMeUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
