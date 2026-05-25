@@ -11,7 +11,7 @@ x-backend-config: &backend-config
     - DB_NAME=trellix
   depends_on:
     mariadb:
-      condition: service_started
+      condition: service_healthy
     db-init:
       condition: service_completed_successfully
   volumes:
@@ -45,10 +45,12 @@ services:
     <<: *backend-config
     command: python -m app.db_init
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
 
   mariadb:
     image: mariadb:10.5
+    command: --skip-name-resolve --connect-timeout=20
     ports:
       - "3307:3306"
     environment:
@@ -58,6 +60,11 @@ services:
       - MYSQL_PASSWORD=trellix
     volumes:
       - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "trellix", "-ptrellix"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
 
   frontend:
     build:
